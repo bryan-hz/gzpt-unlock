@@ -10,7 +10,7 @@ class Command():
         param_str = ""
         for label, value in self.params.items():
             if value is not None:
-                param_str += '"{}"="{}" '.format(label,
+                param_str += '{}="{}" '.format(label,
                                                  value)
         return '<{} {}/>\r\n'.format(tag, param_str)
 
