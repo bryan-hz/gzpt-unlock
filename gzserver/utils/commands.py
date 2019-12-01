@@ -1,4 +1,4 @@
-from gzserver.tagtype import TagType
+from utils.tagtype import TagType
 
 
 class Command():

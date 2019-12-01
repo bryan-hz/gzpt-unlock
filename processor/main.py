@@ -1,0 +1,38 @@
+import http
+
+from flask import Flask, request
+import json
+app = Flask(__name__)
+results = list()
+historical_inputs = list()
+
+
+@app.route("/")
+def home():
+    return "Welcome Processing Server!"
+
+
+@app.route("/results", methods=["GET", "POST"])
+def get_authentication_result():
+    global results, historical_inputs
+    if request.method == "GET":
+        try:
+            data = json.dumps(historical_inputs[-1])
+        except:
+            data = 'None'
+        return {"data": data}
+    elif request.method == "POST":
+        raw_data = request.get_data()
+        data = json.loads(raw_data).get("data")
+        historical_inputs.extend(data)
+        if len(historical_inputs) > 1000:
+            print('long')
+            historical_inputs.pop(0)
+        print(historical_inputs[-1], len(historical_inputs))
+        return ('', http.HTTPStatus.NO_CONTENT)
+    else:
+        return ('', http.HTTPStatus.BAD_REQUEST)
+
+
+if __name__ == "__main__":
+    app.run(debug=True, port=5050)
