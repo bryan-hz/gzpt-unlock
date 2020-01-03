@@ -1,37 +1,68 @@
+import sys
 import tkinter as tk
 
 import requests
 
 
 class GUI():
-    def __init__(self):
+    def __init__(self, width: int, height: int):
         super().__init__()
         self.root = tk.Tk()
+        self.root.minsize(960, 560)
         self.root.title('Gaze Pattern Authentication')
-        self.root.resizable(width=False,
-                            height=False)
+        # self.root.resizable(width=False,
+        #                     height=False)
         self.root.wm_attributes("-topmost", 1)
         self.window = tk.Canvas(self.root,
-                                width=1920,
-                                height=1080,
+                                width=width,
+                                height=height,
                                 bd=0,
                                 highlightthickness=0)
+        self.all_items = set()
         self.window.pack()
-        self.text_id = self.window.create_text(1920,
-                                               1080,
+        self.reload_page(width, height)
+
+    def _remove_all_items(self):
+        for item in self.all_items:
+            self.window.delete(item)
+        self.all_items = set()
+
+    def reload_page(self, width, height):
+        print("reload")
+        self._remove_all_items()
+
+        self.width = width
+        self.height = height
+        self.gap_len = min(width, height) / 3.8
+        self.text_id = self.window.create_text(self.width,
+                                               self.height,
                                                anchor='se')
-        self.nine_circles = self._create_nine_points_grid((960, 400),
-                                                          250,
-                                                          50,
+        center_pt = (self.width/2, self.height/2 - self.gap_len/3)
+        self.nine_circles = self._create_nine_points_grid(center_pt,
+                                                          self.gap_len,
+                                                          self.gap_len/3.5,
+                                                          width=self.gap_len/60,
                                                           fill=self.from_rgb(201, 221, 240))
-        self.nine_centers = self._create_nine_points_grid((960, 400),
-                                                          250,
-                                                          6,
+        self.nine_centers = self._create_nine_points_grid(center_pt,
+                                                          self.gap_len,
+                                                          self.gap_len/30,
+                                                          self.gap_len/60,
                                                           fill='black')
-        self.instruction_text = self._draw_text(960, 800, "Hi, trace your pattern with your eyes.", family='mamelon', size=40)
-        # self.instruction_text = self.window.create_text(700, 700, anchor='se', text='Hi, trace your pattern with your eyes', font=('mamelon', 50))
-        self.window.itemconfig(self.text_id,
-                               text='hello')
+        self.instruction_text = self._draw_text(self.width/2,
+                                                4/5*self.height,
+                                                "Hi, trace your pattern with your eyes.",
+                                                family='mamelon',
+                                                size=int(self.gap_len/4))
+
+        
+        self.all_items.add(self.text_id)
+        for c_id in self.nine_circles:
+            self.all_items.add(c_id)
+        for p_id in self.nine_centers:
+            self.all_items.add(p_id)
+        self.all_items.add(self.instruction_text)
+
+        
 
     def from_rgb(self, r: int, g: int, b: int) -> str:
         """Convert rgb to hex color
@@ -98,15 +129,28 @@ class GUI():
         return c
 
     def _draw_text(self, x, y, text, anchor='n', family='Arial', size=20):
-        text_id = self.window.create_text(x, y, text=text, anchor=anchor, font=(family, size))
+        text_id = self.window.create_text(x,
+                                          y,
+                                          text=text,
+                                          anchor=anchor,
+                                          font=(family, size))
         return text_id
 
     def start(self):
         print("GUI started!")
-        self._update()
+        self._update(check_reload=False)
         self.root.mainloop()
 
-    def _update(self):
+    def _check_update(self):
+        screen_width, screen_height = self.root.winfo_width(), self.root.winfo_height()
+        if screen_width != self.width or screen_height != self.height:
+            print(self.root.winfo_width(), self.root.winfo_height(), self.width, self.height)
+            self.reload_page(screen_width, screen_height)
+
+    def _update(self, check_reload=True):
+        if check_reload:
+            self._check_update()
+
         try:
             auth_flag = requests.get("http://127.0.0.1:5050/results")
             self.window.itemconfig(self.text_id,
@@ -114,50 +158,11 @@ class GUI():
         except requests.ConnectionError:
             self.window.itemconfig(self.text_id,
                                    text="Error: 404 Server Not Found!")
-        self.window.move(self.text_id, -1, -1)
+        # self.window.move(self.text_id, -1, -1)
         self.window.after(50, self._update)
 
 
 if __name__ == "__main__":
-    gui = GUI()
+    screen_width, screen_height = sys.argv[1], sys.argv[2]
+    gui = GUI(int(screen_width), int(screen_height))
     gui.start()
-
-# from tkinter import *
-# import random
-# import time
-# import requests
-
-# root = Tk()
-# root.title = "Game"
-# root.resizable(0,0)
-# root.wm_attributes("-topmost", 1)
-
-# canvas = Canvas(root, width=1920, height=1080, bd=0, highlightthickness=0)
-# canvas.pack()
-
-# class Ball:
-#     def __init__(self, canvas, color):
-#         self.canvas = canvas
-#         self.id = canvas.create_oval(10, 10, 25, 25, fill=color)
-#         self.canvas.move(self.id, 245, 100)
-
-#         self.canvas.bind("<Button-1>", self.canvas_onclick)
-#         self.text_id = self.canvas.create_text(300, 200, anchor='se')
-#         self.canvas.itemconfig(self.text_id, text='hello')
-
-#     def canvas_onclick(self, event):
-#         self.canvas.itemconfig(
-#             self.text_id,
-#             text="You clicked at ({}, {})".format(event.x, event.y)
-#         )
-
-#     def draw(self):
-#         data = requests.get("http://127.0.0.1:5000/")
-#         if bytes.decode(data.content) == "Nana welcomes you!":
-#             self.canvas.move(self.id, 0, -1)
-#         self.canvas.after(50, self.draw)
-
-
-# ball = Ball(canvas, "red")
-# ball.draw()  #Changed per Bryan Oakley's comment.
-# root.mainloop()
