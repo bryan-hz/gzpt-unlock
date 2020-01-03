@@ -163,6 +163,9 @@ class GUI():
 
 
 if __name__ == "__main__":
-    screen_width, screen_height = sys.argv[1], sys.argv[2]
+    try:
+        screen_width, screen_height = sys.argv[1], sys.argv[2]
+    except:
+        screen_width, screen_height = 1280, 720
     gui = GUI(int(screen_width), int(screen_height))
     gui.start()
