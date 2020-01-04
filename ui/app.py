@@ -183,6 +183,9 @@ class GUI():
             print(self.root.winfo_width(),
                   self.root.winfo_height(), self.width, self.height)
             self.reload_page(screen_width, screen_height)
+            requests.put("http://127.0.0.1:5050/settings",
+                         json={"screen_width": screen_width,
+                               "screen_height": screen_height})
 
     def _activate_circle(self, circle_id: int):
         """Set activated circle to background color and new active circle to active color
@@ -193,9 +196,11 @@ class GUI():
         number of the circle representing, one of 1-9
         """
         if self.active_circle:
-            self.window.itemconfig(self.nine_circles[self.active_circle], fill=self.from_rgb(CIRCLE_BG_COLOR))
+            self.window.itemconfig(
+                self.nine_circles[self.active_circle], fill=self.from_rgb(CIRCLE_BG_COLOR))
         if circle_id:
-            self.window.itemconfig(self.nine_circles[circle_id], fill=self.from_rgb(CIRCLE_ACTIVE_COLOR))
+            self.window.itemconfig(
+                self.nine_circles[circle_id], fill=self.from_rgb(CIRCLE_ACTIVE_COLOR))
         self.active_circle = circle_id
 
     def _update(self, check_reload=True):
@@ -214,10 +219,10 @@ class GUI():
             validate_success = response_data["validate_success"]
             if DEBUG_MODE:
                 self.window.itemconfig(self.debug_text,
-                                    text=DEBUG_LAST_INPUT.format(active_circle) +
-                                            DEBUG_VALIDATE_SUCCESS.format(validate_success))
+                                       text=DEBUG_LAST_INPUT.format(active_circle) +
+                                       DEBUG_VALIDATE_SUCCESS.format(validate_success))
                 self._activate_circle(active_circle)
-        
+
         self.window.after(500, self._update)
 
 

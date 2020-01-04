@@ -48,5 +48,4 @@ while True:
         x = root.get("BPOGX")
         y = root.get("BPOGY")
         print(x, y)
-        requests.post("http://127.0.0.1:5050/results",
-                      json.dumps({"data": [(x, y)]}))
+        requests.post("http://127.0.0.1:5050/results", json={ "x": x, "y": y })
