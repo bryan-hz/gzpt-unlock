@@ -6,6 +6,8 @@ import time
 from flask import Flask, request
 
 from constants import SCREEN_HEIGHT, SCREEN_WIDTH
+from messages import (INVALID_SETTING_KEY, MISSING_PARAMETER,
+                      TOO_MANY_PARAMETERS)
 
 app = Flask(__name__)
 
@@ -26,9 +28,9 @@ def homeAPI():
     return "Welcome Processing Server!"
 
 
-def handle_update_device_settings(data: dict):
+def handle_update_device_settings(settings: dict):
     new_settings = dict()
-    for key, value in data.items():
+    for key, value in settings.items():
         if not key in device_settings:
             print("[ERROR] Key error, settings remain unchanged.")
             return False, key
@@ -39,17 +41,38 @@ def handle_update_device_settings(data: dict):
     return True, None
 
 
+def handle_get_device_settings(keys: list) -> dict:
+    settings = dict()
+    for key in keys:
+        if not key in device_settings:
+            return False, key
+        else:
+            settings[key] = device_settings[key]
+    return True, settings
+
+
 @app.route("/settings", methods=["GET", "PUT"])
 def settingsAPI():
-    data = json.loads(request.get_data())
     if request.method == "PUT":
+        data = json.loads(request.get_data())
         update_success, err = handle_update_device_settings(data)
         print("[INFO] Current device settings: ", device_settings)
         if not update_success:
-            return ('Invalid Setting Key \"{}\"'.format(err),
+            return (INVALID_SETTING_KEY.format(err),
                     http.HTTPStatus.BAD_REQUEST)
         else:
             return ('', http.HTTPStatus.OK)
+    elif request.method == "GET":
+        keys = request.args.getlist("keys")
+        fetch_success, content = handle_get_device_settings(keys)
+        if fetch_success:
+            return (content, http.HTTPStatus.OK)
+        else:
+            return (INVALID_SETTING_KEY.format(content),
+                    http.HTTPStatus.BAD_REQUEST)
+    else:
+        # Should not happen
+        return ('', http.HTTPStatus.METHOD_NOT_ALLOWED)
 
 
 def handle_post_user_inputs(x: int, y: int):
@@ -62,14 +85,14 @@ def handle_post_user_inputs(x: int, y: int):
 def user_inputsAPI():
     data = json.loads(request.get_data())
     if len(data) > 2:
-        return ("Too many parameters",
+        return (TOO_MANY_PARAMETERS,
                 http.HTTPStatus.BAD_REQUEST)
     x = y = None
     for key in ["x", "y"]:
         try:
             key = data[key]
         except:
-            return ('Missing parameter \"{}\"'.format(key),
+            return (MISSING_PARAMETER.format(key),
                     http.HTTPStatus.BAD_REQUEST)
     handle_post_user_inputs(x, y)
     return ('', http.HTTPStatus.CREATED)
