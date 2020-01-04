@@ -1,7 +1,10 @@
 import http
+import json
+import time
 
 from flask import Flask, request
-import json
+import random
+
 app = Flask(__name__)
 results = list()
 historical_inputs = list()
@@ -20,7 +23,10 @@ def get_authentication_result():
             data = json.dumps(historical_inputs[-1])
         except:
             data = 'None'
-        return {"data": data}
+        return {
+            "validate_success": random.choice([True, False]),
+            "last_input": random.choice([None, *list(range(1, 9))])
+        }
     elif request.method == "POST":
         raw_data = request.get_data()
         data = json.loads(raw_data).get("data")

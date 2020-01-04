@@ -35,3 +35,9 @@ GAP_FONT_RATIO = 4 # gap / font size
 """ Colors """
 CIRCLE_BG_COLOR = (201, 221, 240)
 CIRCLE_CENTER_COLOR = (0, 0, 0)
+CIRCLE_ACTIVE_COLOR = (90, 192, 37)
+
+##################################
+##   Nine-point Grid Settings   ##
+##################################
+DEBUG_MODE = True

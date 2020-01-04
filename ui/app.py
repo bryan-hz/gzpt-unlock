@@ -1,15 +1,17 @@
+import json
 import sys
 import tkinter as tk
 
 import requests
 
-from constants import (DEFAULT_SCREEN_HEIGHT, DEFAULT_SCREEN_WIDTH,
-                       MIN_WINDOW_HEIGHT, MIN_WINDOW_WIDTH,
-                       WINDOW_START_MODE,
-                       GAP_HEIGHT_RATIO, GAP_RADIUS_RATIO, GAP_OUTLINE_RATIO, GAP_FONT_RATIO,
-                       CENTER_OUTLINE_RATIO,
-                       CIRCLE_BG_COLOR, CIRCLE_CENTER_COLOR)
-from messages import (INSERT_INSTRUCTION)
+from constants import (CENTER_OUTLINE_RATIO, CIRCLE_ACTIVE_COLOR,
+                       CIRCLE_BG_COLOR, CIRCLE_CENTER_COLOR, DEBUG_MODE,
+                       DEFAULT_SCREEN_HEIGHT, DEFAULT_SCREEN_WIDTH,
+                       GAP_FONT_RATIO, GAP_HEIGHT_RATIO, GAP_OUTLINE_RATIO,
+                       GAP_RADIUS_RATIO, MIN_WINDOW_HEIGHT, MIN_WINDOW_WIDTH,
+                       WINDOW_START_MODE)
+from messages import (DEBUG_LAST_INPUT, DEBUG_SERVER_UNAVAILABLE,
+                      DEBUG_VALIDATE_SUCCESS, INSERT_INSTRUCTION)
 
 
 class GUI():
@@ -27,6 +29,7 @@ class GUI():
                                 bd=0,
                                 highlightthickness=0)
         self.all_items = set()
+        self.active_circle = None
         self.window.pack()
         self.reload_page(width, height)
 
@@ -43,9 +46,12 @@ class GUI():
         self.width = width
         self.height = height
         self.gap_len = min(width, height) * GAP_HEIGHT_RATIO
-        self.text_id = self.window.create_text(self.width,
-                                               self.height,
-                                               anchor='se')
+        self.debug_text = self._draw_text(self.width,
+                                          self.height,
+                                          None,
+                                          family="mamelon",
+                                          size=20,
+                                          anchor='se')
         center_pt = (self.width/2, self.height/2 - self.gap_len/3)
         self.nine_circles = self._create_nine_points_grid(center_pt,
                                                           self.gap_len,
@@ -60,10 +66,10 @@ class GUI():
         self.instruction_text = self._draw_text(self.width/2,
                                                 4/5*self.height,
                                                 INSERT_INSTRUCTION,
-                                                family='mamelon',
+                                                family="mamelon",
                                                 size=int(self.gap_len/GAP_FONT_RATIO))
 
-        self.all_items.add(self.text_id)
+        self.all_items.add(self.debug_text)
         for c_id in self.nine_circles:
             self.all_items.add(c_id)
         for p_id in self.nine_centers:
@@ -159,12 +165,12 @@ class GUI():
         return c
 
     def _draw_text(self, x, y, text, anchor='n', family='Arial', size=20):
-        text_id = self.window.create_text(x,
-                                          y,
-                                          text=text,
-                                          anchor=anchor,
-                                          font=(family, size))
-        return text_id
+        debug_text = self.window.create_text(x,
+                                             y,
+                                             text=text,
+                                             anchor=anchor,
+                                             font=(family, size))
+        return debug_text
 
     def start(self):
         print("GUI started!")
@@ -178,19 +184,41 @@ class GUI():
                   self.root.winfo_height(), self.width, self.height)
             self.reload_page(screen_width, screen_height)
 
+    def _activate_circle(self, circle_id: int):
+        """Set activated circle to background color and new active circle to active color
+
+        Parameter
+        ---------
+        circle_id: int
+        number of the circle representing, one of 1-9
+        """
+        if self.active_circle:
+            self.window.itemconfig(self.nine_circles[self.active_circle], fill=self.from_rgb(CIRCLE_BG_COLOR))
+        if circle_id:
+            self.window.itemconfig(self.nine_circles[circle_id], fill=self.from_rgb(CIRCLE_ACTIVE_COLOR))
+        self.active_circle = circle_id
+
     def _update(self, check_reload=True):
         if check_reload:
             self._check_update()
 
         try:
-            auth_flag = requests.get("http://127.0.0.1:5050/results")
-            self.window.itemconfig(self.text_id,
-                                   text=bytes.decode(auth_flag.content))
+            response_data = json.loads(bytes.decode(
+                requests.get("http://127.0.0.1:5050/results").content))
         except requests.ConnectionError:
-            self.window.itemconfig(self.text_id,
-                                   text="Error: 404 Server Not Found!")
-        # self.window.move(self.text_id, -1, -1)
-        self.window.after(50, self._update)
+            self.window.itemconfig(self.debug_text,
+                                   text=DEBUG_SERVER_UNAVAILABLE)
+
+        if response_data:
+            active_circle = response_data["last_input"]
+            validate_success = response_data["validate_success"]
+            if DEBUG_MODE:
+                self.window.itemconfig(self.debug_text,
+                                    text=DEBUG_LAST_INPUT.format(active_circle) +
+                                            DEBUG_VALIDATE_SUCCESS.format(validate_success))
+                self._activate_circle(active_circle)
+        
+        self.window.after(500, self._update)
 
 
 if __name__ == "__main__":
