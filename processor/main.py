@@ -16,10 +16,9 @@ device_settings = {
     SCREEN_HEIGHT: None
 }
 
-buffer_size = 5000
-user_inputs = []
+buffer_size = 5000  # max length of valid user input
+user_inputs = []    # user input list
 
-results = list()
 historical_inputs = list()
 
 
@@ -28,31 +27,20 @@ def homeAPI():
     return "Welcome Processing Server!"
 
 
-def handle_update_device_settings(settings: dict):
-    new_settings = dict()
-    for key, value in settings.items():
-        if not key in device_settings:
-            print("[ERROR] Key error, settings remain unchanged.")
-            return False, key
-        else:
-            new_settings[key] = value
-    device_settings.update(new_settings)
-    print("[INFO] Update Successful!")
-    return True, None
-
-
-def handle_get_device_settings(keys: list) -> dict:
-    settings = dict()
-    for key in keys:
-        if not key in device_settings:
-            return False, key
-        else:
-            settings[key] = device_settings[key]
-    return True, settings
-
-
+####################################
+##    Settings Related Requests   ##
+####################################
 @app.route("/settings", methods=["GET", "PUT"])
 def settingsAPI():
+    """Get or Set device settings
+    
+    > GET method expected queries with "keys" as keyword
+    > PUT method expected json payload with structure like
+        {
+            "screen_width": 1280,
+            "screen_height": 720
+        }
+    """
     if request.method == "PUT":
         data = json.loads(request.get_data())
         update_success, err = handle_update_device_settings(data)
@@ -75,14 +63,78 @@ def settingsAPI():
         return ('', http.HTTPStatus.METHOD_NOT_ALLOWED)
 
 
-def handle_post_user_inputs(x: int, y: int):
-    if len(user_inputs) > 5000:
-        user_inputs.pop(0)
-        user_inputs.append((x, y))
+def handle_update_device_settings(settings: dict):
+    """Update existing settings
+    If there exists key that does not belongs to device settings,
+    no changed will be made
+
+    Parameter
+    ---------
+    settings: dict
+    dictionary of settings to be updated
+
+    Returns
+    -------
+    bool, str or None
+    on success, True and None will be returned;
+    on failure, False and the key causing the failure will be returned
+    """
+    new_settings = dict()
+    for key, value in settings.items():
+        if not key in device_settings:
+            print("[ERROR] Key error, settings remain unchanged.")
+            return False, key
+        else:
+            new_settings[key] = value
+    device_settings.update(new_settings)
+    print("[INFO] Update Successful!")
+    return True, None
 
 
+def handle_get_device_settings(keys: list) -> (bool, dict):
+    """Get settings of given keys
+
+    Parameter
+    ----------
+    keys: list
+    list of setting keys
+
+
+    Returns
+    -------
+    bool, dict
+    on success, it will return True and expected settings;
+    on failure, it will return False and the key causing the failure.
+    """
+    settings = dict()
+    for key in keys:
+        if not key in device_settings:
+            return False, key
+        else:
+            settings[key] = device_settings[key]
+    return True, settings
+
+
+########################################
+##    User Inputs Related Requests    ##
+########################################
 @app.route("/inputs", methods=["POST"])
 def user_inputsAPI():
+    """API for storing new user input
+    payload is json style of shape:\n
+    {
+        "x": int,
+        "y": int
+    }
+
+    > if parameters are more than "x" and "y",
+      server will return Bad Request
+    > if parameters contains key other than "x" or "y",
+      server will return Bad Request
+    
+    > if user input is successfully stored
+      server will return Created
+    """
     data = json.loads(request.get_data())
     if len(data) > 2:
         return (TOO_MANY_PARAMETERS,
@@ -98,24 +150,62 @@ def user_inputsAPI():
     return ('', http.HTTPStatus.CREATED)
 
 
+def handle_post_user_inputs(x: int, y: int):
+    """Store received user input
+
+    Parameters
+    ----------
+    x: int
+    x of the position
+
+    y: int
+    y of the position
+
+    Return
+    ------
+    True
+    temporarily always return successful 
+    """
+    if len(user_inputs) > 5000:
+        user_inputs.pop(0)
+
+    user_inputs.append((x, y))
+    return True
+
+
+####################################
+##    Results Related Requests    ##
+####################################
+@app.route("/results", methods=["GET"])
+def authentication_resultsAPI():
+    """Get Most Recent Validation Result
+    
+    Returns
+    -------
+    Response
+    {
+        "content": {
+            "validate_success": bool,
+            "last_input": int or None
+        }
+    }
+    """
+    return handle_get_authentication_results()
+
+
 def handle_get_authentication_results():
     """
     Validate and Return results by passing user inputs into model
     """
+    #TODO
     return {
         "validate_success": random.choice([True, False]),
         "last_input": random.choice([None, *list(range(1, 9))])
     }
 
-
-@app.route("/results", methods=["GET"])
-def authentication_resultsAPI():
-    return handle_get_authentication_results()
-
-
 # @app.route("/results", methods=["GET", "POST"])
 # def authentication_resultsAPI():
-#     global results, historical_inputs
+#     global historical_inputs
 #     if request.method == "GET":
 #        try:
 #           data = json.dumps(historical_inputs[-1])

@@ -33,13 +33,65 @@ class GUI():
         self.window.pack()
         self.reload_page(width, height)
 
-    def _remove_all_items(self):
-        """Remove all items in window"""
-        for item in self.all_items:
-            self.window.delete(item)
-        self.all_items = set()
+    def start(self):
+        """
+        Start Running GUI
+        """
+        print("GUI started!")
+        self._update(check_reload=False)
+        self.root.mainloop()
+
+    def _update(self, check_reload=True):
+        """Main update function
+        This function is executed every 500ms
+
+        Parameter
+        ---------
+        check_reload: bool, optional
+        check should reload or not
+        """
+        if check_reload:
+            self._check_update()
+
+        try:
+            response_data = json.loads(bytes.decode(
+                requests.get("http://127.0.0.1:5050/results").content))
+        except requests.ConnectionError:
+            self.window.itemconfig(self.debug_text,
+                                   text=DEBUG_SERVER_UNAVAILABLE)
+
+        if response_data:
+            active_circle = response_data["last_input"]
+            validate_success = response_data["validate_success"]
+            if DEBUG_MODE:
+                self.window.itemconfig(self.debug_text,
+                                       text=DEBUG_LAST_INPUT.format(active_circle) +
+                                       DEBUG_VALIDATE_SUCCESS.format(validate_success))
+                self._activate_circle(active_circle)
+
+        self.window.after(500, self._update)
+
+    def _check_update(self):
+        screen_width, screen_height = self.root.winfo_width(), self.root.winfo_height()
+        if screen_width != self.width or screen_height != self.height:
+            print(self.root.winfo_width(),
+                  self.root.winfo_height(), self.width, self.height)
+            self.reload_page(screen_width, screen_height)
+            requests.put("http://127.0.0.1:5050/settings",
+                         json={"screen_width": screen_width,
+                               "screen_height": screen_height})
 
     def reload_page(self, width, height):
+        """Redraw all items in the window
+
+        Parameters
+        ----------
+        width: int
+        width of the window
+
+        height: int
+        height of the window
+        """
         print("reload")
         self._remove_all_items()
 
@@ -76,6 +128,48 @@ class GUI():
             self.all_items.add(p_id)
         self.all_items.add(self.instruction_text)
 
+    ########################################
+    ##    Helper functions for Drawing    ##
+    ########################################
+
+    def _draw_circle(self, x, y, r, width, fill):
+        c = self.window.create_oval(x-r, y-r, x+r, y+r, width=width, fill=fill)
+        return c
+
+    def _draw_text(self, x, y, text, anchor='n', family='Arial', size=20):
+        debug_text = self.window.create_text(x,
+                                             y,
+                                             text=text,
+                                             anchor=anchor,
+                                             font=(family, size))
+        return debug_text
+
+    def _activate_circle(self, circle_id: int):
+        """Set activated circle to background color and new active circle to active color
+
+        Parameter
+        ---------
+        circle_id: int
+        number of the circle representing, one of 1-9
+        """
+        if self.active_circle:
+            self.window.itemconfig(
+                self.nine_circles[self.active_circle], fill=self.from_rgb(CIRCLE_BG_COLOR))
+        if circle_id:
+            self.window.itemconfig(
+                self.nine_circles[circle_id], fill=self.from_rgb(CIRCLE_ACTIVE_COLOR))
+        self.active_circle = circle_id
+
+    ##################################
+    ##    Other Helper functions    ##
+    ##################################
+
+    def _remove_all_items(self):
+        """Remove all items in window"""
+        for item in self.all_items:
+            self.window.delete(item)
+        self.all_items = set()
+
     def from_rgb(self, rgb: tuple) -> str:
         """Convert rgb to hex color
 
@@ -98,32 +192,6 @@ class GUI():
         """
         r, g, b = rgb
         return '#{:02x}{:02x}{:02x}'.format(r, g, b)
-
-    # def from_rgb(self, r: int, g: int, b: int) -> str:
-    #     """Convert rgb to hex color
-
-    #     Parameter
-    #     ---------
-    #     r: int
-    #     number of red channel
-
-    #     g: int
-    #     number of green channel
-
-    #     b: int
-    #     number of blue channel
-
-    #     Return
-    #     ------
-    #     str
-    #     hex color in format of '#xxxxxx'
-
-    #     Example
-    #     -------
-    #     >>>from_rgb((255, 10, 5))
-    #     '#ff0a05'
-    #     """
-    #     return '#{:02x}{:02x}{:02x}'.format(r, g, b)
 
     def _create_nine_points_grid(self, center_pt, distance, radius, width=3, fill=None) -> list:
         """Create a Nine-point Grid\n
@@ -159,71 +227,6 @@ class GUI():
                                              fill))
 
         return ids
-
-    def _draw_circle(self, x, y, r, width, fill):
-        c = self.window.create_oval(x-r, y-r, x+r, y+r, width=width, fill=fill)
-        return c
-
-    def _draw_text(self, x, y, text, anchor='n', family='Arial', size=20):
-        debug_text = self.window.create_text(x,
-                                             y,
-                                             text=text,
-                                             anchor=anchor,
-                                             font=(family, size))
-        return debug_text
-
-    def start(self):
-        print("GUI started!")
-        self._update(check_reload=False)
-        self.root.mainloop()
-
-    def _check_update(self):
-        screen_width, screen_height = self.root.winfo_width(), self.root.winfo_height()
-        if screen_width != self.width or screen_height != self.height:
-            print(self.root.winfo_width(),
-                  self.root.winfo_height(), self.width, self.height)
-            self.reload_page(screen_width, screen_height)
-            requests.put("http://127.0.0.1:5050/settings",
-                         json={"screen_width": screen_width,
-                               "screen_height": screen_height})
-
-    def _activate_circle(self, circle_id: int):
-        """Set activated circle to background color and new active circle to active color
-
-        Parameter
-        ---------
-        circle_id: int
-        number of the circle representing, one of 1-9
-        """
-        if self.active_circle:
-            self.window.itemconfig(
-                self.nine_circles[self.active_circle], fill=self.from_rgb(CIRCLE_BG_COLOR))
-        if circle_id:
-            self.window.itemconfig(
-                self.nine_circles[circle_id], fill=self.from_rgb(CIRCLE_ACTIVE_COLOR))
-        self.active_circle = circle_id
-
-    def _update(self, check_reload=True):
-        if check_reload:
-            self._check_update()
-
-        try:
-            response_data = json.loads(bytes.decode(
-                requests.get("http://127.0.0.1:5050/results").content))
-        except requests.ConnectionError:
-            self.window.itemconfig(self.debug_text,
-                                   text=DEBUG_SERVER_UNAVAILABLE)
-
-        if response_data:
-            active_circle = response_data["last_input"]
-            validate_success = response_data["validate_success"]
-            if DEBUG_MODE:
-                self.window.itemconfig(self.debug_text,
-                                       text=DEBUG_LAST_INPUT.format(active_circle) +
-                                       DEBUG_VALIDATE_SUCCESS.format(validate_success))
-                self._activate_circle(active_circle)
-
-        self.window.after(500, self._update)
 
 
 if __name__ == "__main__":
