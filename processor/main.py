@@ -8,6 +8,7 @@ from flask import Flask, request
 from constants import SCREEN_HEIGHT, SCREEN_WIDTH
 from messages import (INVALID_SETTING_KEY, MISSING_PARAMETER,
                       TOO_MANY_PARAMETERS)
+from model import GMM_Classifier
 
 app = Flask(__name__)
 
@@ -16,11 +17,12 @@ device_settings = {
     SCREEN_HEIGHT: None
 }
 
-buffer_size = 5000  # max length of valid user input
-user_inputs = []    # user input list
+MAX_BUFFER_SIZE = 30    # max length of valid user input
+user_inputs = []        # user input list
 
 historical_inputs = list()
 
+classifier = GMM_Classifier()
 
 @app.route("/")
 def homeAPI():
@@ -44,7 +46,7 @@ def settingsAPI():
     if request.method == "PUT":
         data = json.loads(request.get_data())
         update_success, err = handle_update_device_settings(data)
-        print("[INFO] Current device settings: ", device_settings)
+        app.logger.info("Current device settings: {}".format(device_settings))
         if not update_success:
             return (INVALID_SETTING_KEY.format(err),
                     http.HTTPStatus.BAD_REQUEST)
@@ -82,12 +84,12 @@ def handle_update_device_settings(settings: dict):
     new_settings = dict()
     for key, value in settings.items():
         if not key in device_settings:
-            print("[ERROR] Key error, settings remain unchanged.")
+            app.logger.error("Key error, settings remain unchanged.")
             return False, key
         else:
             new_settings[key] = value
     device_settings.update(new_settings)
-    print("[INFO] Update Successful!")
+    app.logger.info("Update Successful!")
     return True, None
 
 
@@ -139,13 +141,19 @@ def user_inputsAPI():
     if len(data) > 2:
         return (TOO_MANY_PARAMETERS,
                 http.HTTPStatus.BAD_REQUEST)
+
     x = y = None
-    for key in ["x", "y"]:
-        try:
-            key = data[key]
-        except:
-            return (MISSING_PARAMETER.format(key),
-                    http.HTTPStatus.BAD_REQUEST)
+    try:
+        x = data["x"]
+    except:
+        return (MISSING_PARAMETER.format("x"),
+                http.HTTPStatus.BAD_REQUEST)
+    try:
+        y = data["y"]
+    except:
+        return (MISSING_PARAMETER.format("y"),
+                http.HTTPStatus.BAD_REQUEST)
+
     handle_post_user_inputs(x, y)
     return ('', http.HTTPStatus.CREATED)
 
@@ -166,10 +174,13 @@ def handle_post_user_inputs(x: int, y: int):
     True
     temporarily always return successful 
     """
-    if len(user_inputs) > 5000:
+    if len(user_inputs) > MAX_BUFFER_SIZE:
         user_inputs.pop(0)
+        centers, covs = classifier.classify_inputs(user_inputs, {})
+        app.logger.info("classify result:\n{}".format(centers, covs))
 
-    user_inputs.append((x, y))
+    user_inputs.append([x, y])
+
     return True
 
 

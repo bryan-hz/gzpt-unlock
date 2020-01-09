@@ -1,10 +1,14 @@
+import json
+import time
+import xml.etree.ElementTree as ET
+
+import requests
+
 from utils.commands import EnableDataStream, EnableStreamBPOG, ScreenSize
 from utils.gazepoint import Gazepoint
 from utils.tagtype import TagType
-import xml.etree.ElementTree as ET
-import requests
-import json
-import time
+
+MOCK_FLAG = True
 
 machine_host = '192.168.0.26'
 machine_port = 4242
@@ -12,8 +16,17 @@ machine_port = 4242
 screen_width = None
 screen_height = None
 
+
+if MOCK_FLAG:
+    from mock import DATA
+    for x, y in DATA:
+        requests.post("http://127.0.0.1:5050/inputs", json={"x": x, "y": y})
+        time.sleep(1/60)
+    exit(0)
+
 while not screen_width or not screen_height:
-    response = requests.get("http://127.0.0.1:5050/settings", params={ "keys": ["screen_width", "screen_height"]})
+    response = requests.get("http://127.0.0.1:5050/settings",
+                            params={"keys": ["screen_width", "screen_height"]})
     screen_settings = json.loads(response.content)
     screen_width = screen_settings["screen_width"]
     screen_height = screen_settings["screen_height"]
@@ -48,4 +61,4 @@ while True:
         x = root.get("BPOGX")
         y = root.get("BPOGY")
         print(x, y)
-        requests.post("http://127.0.0.1:5050/results", json={ "x": x, "y": y })
+        requests.post("http://127.0.0.1:5050/inputs", json={"x": x, "y": y})
