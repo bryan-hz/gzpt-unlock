@@ -10,4 +10,4 @@ x = np.random.uniform(70, 81, 10)
 y=np.random.normal(x, 0.3)
 dist_2 = np.column_stack((x, y))
 
-DATA = np.concatenate((dist_1, dist_2))
+DATA = np.concatenate((dist_2, dist_1))

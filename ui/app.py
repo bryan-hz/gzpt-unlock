@@ -30,7 +30,7 @@ class GUI():
                                 highlightthickness=0)
         self.all_items = set()
         self.active_circle = None
-        self.input_zones = {}
+        self.input_zones = (None, None) # dicts of positions and radiuses
         self.window.pack()
         self.reload_page(width, height)
 
@@ -82,7 +82,8 @@ class GUI():
                          json={
                              "screen_width": screen_width,
                              "screen_height": screen_height,
-                             "input_zones": self.input_zones
+                             "input_centers": self.input_zones[0],
+                             "input_tolerances": self.input_zones[1]
                          })
 
     def reload_page(self, width, height):
@@ -222,6 +223,7 @@ class GUI():
         """
         ids = [None]
         circles = {}
+        radiuses = {}
         circle_class = 1
         cx, cy = center_pt
         for dy in (1, 0, -1):
@@ -233,10 +235,11 @@ class GUI():
                                              radius,
                                              width,
                                              fill))
-                circles[str(circle_class)] = ((center_x, center_y), radius)
+                circles[str(circle_class)] = (center_x, center_y)
+                radiuses[str(circle_class)] = radius
                 circle_class += 1
 
-        return ids, circles
+        return ids, (circles, radiuses)
 
 
 if __name__ == "__main__":

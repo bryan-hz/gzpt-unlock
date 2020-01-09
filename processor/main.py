@@ -5,7 +5,8 @@ import time
 
 from flask import Flask, request
 
-from constants import SCREEN_HEIGHT, SCREEN_WIDTH, INPUT_ZONES
+from constants import (INPUT_CENTERS, INPUT_TOLERANCES, SCREEN_HEIGHT,
+                       SCREEN_WIDTH)
 from messages import (INVALID_SETTING_KEY, MISSING_PARAMETER,
                       TOO_MANY_PARAMETERS)
 from model import GMM_Classifier
@@ -15,7 +16,8 @@ app = Flask(__name__)
 device_settings = {
     SCREEN_WIDTH: None,
     SCREEN_HEIGHT: None,
-    INPUT_ZONES: None
+    INPUT_CENTERS: None,
+    INPUT_TOLERANCES: None
 }
 
 MAX_BUFFER_SIZE = 30    # max length of valid user input
@@ -24,6 +26,7 @@ user_inputs = []        # user input list
 historical_inputs = list()
 
 classifier = None
+
 
 @app.route("/")
 def homeAPI():
@@ -36,7 +39,7 @@ def homeAPI():
 @app.route("/settings", methods=["GET", "PUT"])
 def settingsAPI():
     """Get or Set device settings
-    
+
     > GET method expected queries with "keys" as keyword
     > PUT method expected json payload with structure like
         {
@@ -70,7 +73,7 @@ def handle_update_device_settings(settings: dict):
     """Update existing settings
     If there exists key that does not belongs to device settings,
     no changed will be made
-    
+
     This function will trigger update on classifier as well
 
     Parameter
@@ -92,10 +95,11 @@ def handle_update_device_settings(settings: dict):
         else:
             new_settings[key] = value
     device_settings.update(new_settings)
-    classes = {}
-    for k, (pos, _) in device_settings[INPUT_ZONES].items():
-        classes[k] = pos
-    classifier = GMM_Classifier(classes)
+
+    global user_inputs, classifier
+    user_inputs = []
+    classifier = GMM_Classifier(device_settings[INPUT_CENTERS])
+
     app.logger.info("Update Successful!")
     return True, None
 
@@ -140,7 +144,7 @@ def user_inputsAPI():
       server will return Bad Request
     > if parameters contains key other than "x" or "y",
       server will return Bad Request
-    
+
     > if user input is successfully stored
       server will return Created
     """
@@ -183,8 +187,9 @@ def handle_post_user_inputs(x: int, y: int):
     """
     if len(user_inputs) > MAX_BUFFER_SIZE:
         user_inputs.pop(0)
-        centers, covs = classifier.classify_inputs(user_inputs, {})
-        app.logger.info("classify result:\n{}".format(centers, covs))
+        centers, covs = classifier.classify_inputs(user_inputs,
+                                                   device_settings[INPUT_TOLERANCES])
+        app.logger.info("classify result:\n{}\n{}".format(centers, covs))
 
     user_inputs.append([x, y])
 
@@ -197,7 +202,7 @@ def handle_post_user_inputs(x: int, y: int):
 @app.route("/results", methods=["GET"])
 def authentication_resultsAPI():
     """Get Most Recent Validation Result
-    
+
     Returns
     -------
     Response
@@ -215,7 +220,7 @@ def handle_get_authentication_results():
     """
     Validate and Return results by passing user inputs into model
     """
-    #TODO
+    # TODO
     return {
         "validate_success": random.choice([True, False]),
         "last_input": random.choice([None, *list(range(1, 9))])
