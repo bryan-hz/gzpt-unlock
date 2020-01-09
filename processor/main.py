@@ -5,7 +5,7 @@ import time
 
 from flask import Flask, request
 
-from constants import SCREEN_HEIGHT, SCREEN_WIDTH
+from constants import SCREEN_HEIGHT, SCREEN_WIDTH, INPUT_ZONES
 from messages import (INVALID_SETTING_KEY, MISSING_PARAMETER,
                       TOO_MANY_PARAMETERS)
 from model import GMM_Classifier
@@ -14,7 +14,8 @@ app = Flask(__name__)
 
 device_settings = {
     SCREEN_WIDTH: None,
-    SCREEN_HEIGHT: None
+    SCREEN_HEIGHT: None,
+    INPUT_ZONES: None
 }
 
 MAX_BUFFER_SIZE = 30    # max length of valid user input

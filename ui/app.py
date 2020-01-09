@@ -30,6 +30,7 @@ class GUI():
                                 highlightthickness=0)
         self.all_items = set()
         self.active_circle = None
+        self.input_zones = {}
         self.window.pack()
         self.reload_page(width, height)
 
@@ -78,8 +79,11 @@ class GUI():
                   self.root.winfo_height(), self.width, self.height)
             self.reload_page(screen_width, screen_height)
             requests.put("http://127.0.0.1:5050/settings",
-                         json={"screen_width": screen_width,
-                               "screen_height": screen_height})
+                         json={
+                             "screen_width": screen_width,
+                             "screen_height": screen_height,
+                             "input_zones": self.input_zones
+                         })
 
     def reload_page(self, width, height):
         """Redraw all items in the window
@@ -105,16 +109,16 @@ class GUI():
                                           size=20,
                                           anchor='se')
         center_pt = (self.width/2, self.height/2 - self.gap_len/3)
-        self.nine_circles = self._create_nine_points_grid(center_pt,
-                                                          self.gap_len,
-                                                          self.gap_len/GAP_RADIUS_RATIO,
-                                                          width=self.gap_len/GAP_OUTLINE_RATIO,
-                                                          fill=self.from_rgb(CIRCLE_BG_COLOR))
-        self.nine_centers = self._create_nine_points_grid(center_pt,
-                                                          self.gap_len,
-                                                          CENTER_OUTLINE_RATIO*self.gap_len/GAP_OUTLINE_RATIO,
-                                                          width=0,
-                                                          fill=self.from_rgb(CIRCLE_CENTER_COLOR))
+        self.nine_circles, self.input_zones = self._create_nine_points_grid(center_pt,
+                                                                            self.gap_len,
+                                                                            self.gap_len/GAP_RADIUS_RATIO,
+                                                                            width=self.gap_len/GAP_OUTLINE_RATIO,
+                                                                            fill=self.from_rgb(CIRCLE_BG_COLOR))
+        self.nine_centers, _ = self._create_nine_points_grid(center_pt,
+                                                             self.gap_len,
+                                                             CENTER_OUTLINE_RATIO*self.gap_len/GAP_OUTLINE_RATIO,
+                                                             width=0,
+                                                             fill=self.from_rgb(CIRCLE_CENTER_COLOR))
         self.instruction_text = self._draw_text(self.width/2,
                                                 4/5*self.height,
                                                 INSERT_INSTRUCTION,
@@ -217,16 +221,22 @@ class GUI():
         list of item ids
         """
         ids = [None]
+        circles = {}
+        circle_class = 1
         cx, cy = center_pt
         for dy in (1, 0, -1):
             for dx in (-1, 0, 1):
-                ids.append(self._draw_circle(cx+dx*distance,
-                                             cy+dy*distance,
+                center_x = cx+dx*distance
+                center_y = cy+dy*distance
+                ids.append(self._draw_circle(center_x,
+                                             center_y,
                                              radius,
                                              width,
                                              fill))
+                circles[str(circle_class)] = ((center_x, center_y), radius)
+                circle_class += 1
 
-        return ids
+        return ids, circles
 
 
 if __name__ == "__main__":
