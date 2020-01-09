@@ -47,7 +47,7 @@ def settingsAPI():
     if request.method == "PUT":
         data = json.loads(request.get_data())
         update_success, err = handle_update_device_settings(data)
-        app.logger.info("Current device settings: {}".format(device_settings))
+        app.logger.info("Current device settings:\n{}".format(device_settings))
         if not update_success:
             return (INVALID_SETTING_KEY.format(err),
                     http.HTTPStatus.BAD_REQUEST)
