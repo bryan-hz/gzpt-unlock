@@ -23,7 +23,7 @@ user_inputs = []        # user input list
 
 historical_inputs = list()
 
-classifier = GMM_Classifier()
+classifier = None
 
 @app.route("/")
 def homeAPI():
@@ -70,6 +70,8 @@ def handle_update_device_settings(settings: dict):
     """Update existing settings
     If there exists key that does not belongs to device settings,
     no changed will be made
+    
+    This function will trigger update on classifier as well
 
     Parameter
     ---------
@@ -90,6 +92,10 @@ def handle_update_device_settings(settings: dict):
         else:
             new_settings[key] = value
     device_settings.update(new_settings)
+    classes = {}
+    for k, (pos, _) in device_settings[INPUT_ZONES].items():
+        classes[k] = pos
+    classifier = GMM_Classifier(classes)
     app.logger.info("Update Successful!")
     return True, None
 

@@ -1,8 +1,12 @@
+import time
+
 import numpy as np
+
 # import matplotlib.pyplot as plt
 import scipy.stats
 from sklearn import mixture
-import time
+from sklearn.neighbors import KNeighborsClassifier
+
 
 """
 Example:
@@ -50,11 +54,14 @@ class GMM_Classifier():
     it locates.
     """
 
-    def __init__(self, cov_threshold=0.5, num_dist=2):
+    def __init__(self, classes: dict, cov_threshold=0.5, num_dist=2):
         """Initialize classifier
 
         Parameters
         ----------
+        classes: dict
+        positions of each class
+
         cov_threshold: float, optional
         the threshold of covariances to make the distribution considered as valid
 
@@ -64,6 +71,9 @@ class GMM_Classifier():
         super().__init__()
         self.cov_threshold = cov_threshold
         self.num_dist = num_dist
+        self.knn = KNeighborsClassifier(n_neighbors=1,
+                                        metric='euclidean').fit(list(classes.values()),
+                                                                list(classes.keys()))
 
     def classify_inputs(self, inputs: list, classes: dict) -> str:
         """Classify inputs into 1 or None class\n
@@ -91,3 +101,5 @@ class GMM_Classifier():
             centers[i, :] = data[np.argmax(density)]
 
         return centers, gmm.covariances_
+
+    # def _
