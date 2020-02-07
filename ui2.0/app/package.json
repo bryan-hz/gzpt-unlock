@@ -1,0 +1,17 @@
+{
+  "name": "ui2.0",
+  "productName": "ui2.0",
+  "version": "0.18.1",
+  "description": "Gazepoint Unlock UI v2.0",
+  "main": "./main.prod.js",
+  "author": {
+    "name": "496",
+    "url": "https://github.com/bryan-hz/gzpt-unlock/ui2.0"
+  },
+  "scripts": {
+    "electron-rebuild": "node -r ../internals/scripts/BabelRegister.js ../internals/scripts/ElectronRebuild.js",
+    "postinstall": "yarn electron-rebuild"
+  },
+  "license": "MIT",
+  "dependencies": {}
+}

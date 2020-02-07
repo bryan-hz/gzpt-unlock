@@ -106,3 +106,6 @@ processor/processor/
 
 # temp folder
 temp/
+
+#
+data/
