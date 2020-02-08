@@ -1,4 +1,5 @@
-import { race, all, call, take, delay } from 'redux-saga/effects';
+import { race, all, call, take, delay, takeLatest } from 'redux-saga/effects';
+import { history } from '../store/configureStore';
 
 const url = 'http://127.0.0.1:5050/stage';
 const POLL_START = 'start';
@@ -22,6 +23,17 @@ function* actionWatcher() {
   }
 }
 
+/**
+ * Programmatically jump example
+ */
+function* jump() {
+  yield call(history.push, './counter');
+}
+
+function* jumpWatcher() {
+  yield takeLatest('jump', jump);
+}
+
 export default function* rootSaga() {
-  yield all([actionWatcher()]);
+  yield all([actionWatcher(), jumpWatcher()]);
 }
