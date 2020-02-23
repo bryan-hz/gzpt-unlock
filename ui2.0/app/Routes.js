@@ -3,13 +3,16 @@ import { Switch, Route } from 'react-router';
 import routes from './constants/routes.json';
 import App from './containers/App';
 import Home from './containers/Home';
-import CounterPage from './containers/CounterPage';
+import RegistrationInstruction from './containers/RegistrationInstruction';
 
 export default () => (
   <App>
     <Switch>
-      <Route path={routes.COUNTER} component={CounterPage} />
-      <Route path={routes.HOME} component={Home} />
+      <Route exact path={routes.HOME} component={Home} />
+      <Route
+        path={routes.REGISTER_INSTRUCTION}
+        component={RegistrationInstruction}
+      />
     </Switch>
   </App>
 );
