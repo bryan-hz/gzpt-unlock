@@ -26,8 +26,8 @@ function* actionWatcher() {
 /**
  * Programmatically jump example
  */
-function* jump() {
-  yield call(history.push, './counter');
+function* jump({ destination }) {
+  yield call(history.push, destination);
 }
 
 function* jumpWatcher() {

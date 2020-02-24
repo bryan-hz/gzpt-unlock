@@ -276,7 +276,8 @@
     "redux": "^4.0.4",
     "redux-saga": "^1.1.3",
     "redux-thunk": "^2.3.0",
-    "source-map-support": "^0.5.16"
+    "source-map-support": "^0.5.16",
+    "styled-components": "^5.0.1"
   },
   "devEngines": {
     "node": ">=7.x",
