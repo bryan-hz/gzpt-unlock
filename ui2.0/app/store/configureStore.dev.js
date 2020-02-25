@@ -6,6 +6,7 @@ import { createLogger } from 'redux-logger';
 import createSagaMiddleware from 'redux-saga';
 import createRootReducer from '../reducers';
 import * as counterActions from '../actions/counter';
+import * as redirectActions from '../actions/redirect';
 
 const history = createHashHistory();
 
@@ -41,6 +42,7 @@ const configureStore = initialState => {
   // Redux DevTools Configuration
   const actionCreators = {
     ...counterActions,
+    ...redirectActions,
     ...routerActions
   };
   // If Redux DevTools Extension is installed use it, otherwise use Redux compose

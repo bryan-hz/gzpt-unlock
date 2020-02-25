@@ -1,4 +1,14 @@
-import { race, all, call, take, delay, takeLatest } from 'redux-saga/effects';
+import {
+  // eslint-disable-next-line no-unused-vars
+  select,
+  race,
+  all,
+  call,
+  take,
+  delay,
+  takeLatest
+} from 'redux-saga/effects';
+import { REDIRECT } from 'constants/redirect';
 import { history } from '../store/configureStore';
 
 const url = 'http://127.0.0.1:5050/stage';
@@ -26,14 +36,14 @@ function* actionWatcher() {
 /**
  * Programmatically jump example
  */
-function* jump({ destination }) {
-  yield call(history.push, destination);
+function* redirectSaga({ payload }) {
+  yield call(history.push, payload);
 }
 
-function* jumpWatcher() {
-  yield takeLatest('jump', jump);
+function* redirectWatcher() {
+  yield takeLatest(REDIRECT, redirectSaga);
 }
 
 export default function* rootSaga() {
-  yield all([actionWatcher(), jumpWatcher()]);
+  yield all([actionWatcher(), redirectWatcher()]);
 }
