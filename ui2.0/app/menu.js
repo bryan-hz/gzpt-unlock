@@ -1,10 +1,7 @@
-// @flow
-import { app, Menu, shell, BrowserWindow } from 'electron';
+import { app, Menu, shell } from 'electron';
 
 export default class MenuBuilder {
-  mainWindow: BrowserWindow;
-
-  constructor(mainWindow: BrowserWindow) {
+  constructor(mainWindow) {
     this.mainWindow = mainWindow;
   }
 
@@ -110,7 +107,7 @@ export default class MenuBuilder {
         },
         {
           label: 'Toggle Developer Tools',
-          accelerator: 'Alt+Command+I',
+          accelerator: 'Shift+Command+C',
           click: () => {
             this.mainWindow.toggleDevTools();
           }
@@ -125,6 +122,13 @@ export default class MenuBuilder {
           accelerator: 'Ctrl+Command+F',
           click: () => {
             this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen());
+          }
+        },
+        {
+          label: 'Toggle Developer Tools',
+          accelerator: 'Shift+Command+C',
+          click: () => {
+            this.mainWindow.toggleDevTools();
           }
         }
       ]
