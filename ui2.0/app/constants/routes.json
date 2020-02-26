@@ -1,5 +1,5 @@
 {
-  "HOME": "/",
-  "PREPARATION": "/preparation",
+  "PREPARATION": "/",
+  "HOME": "/home",
   "REGISTER_INSTRUCTION": "/register/instruction"
 }
