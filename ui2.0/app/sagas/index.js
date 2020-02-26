@@ -83,6 +83,7 @@ function* tryConnectSaga({ payload }) {
       yield put(setVerified(false));
     }
   } catch (exception) {
+    yield put(setConnecting(false));
     yield put(setVerified(false));
   }
 }
