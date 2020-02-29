@@ -23,7 +23,7 @@ import {
 import { gotoHome } from 'actions/redirect';
 
 const getUrl = ({ host, location }) =>
-  `http://${host || LOCAL_HOST}${location || ''}`;
+  `http://${host || LOCAL_HOST}:5050${location || ''}`;
 // const url = 'http://127.0.0.1:5050/stage';
 const POLL_START = 'start';
 const POLL_STOP = 'end';
