@@ -40,7 +40,6 @@ class Gazepoint():
         self._start_calibrate()
         while True:
             data = self._recv()
-            print(data)
             if data["ID"] == "CALIB_RESULT":
                 self._dismiss_calibration()
                 self._end_calibrate()

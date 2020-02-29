@@ -2,6 +2,7 @@ import http
 import json
 import random
 import time
+import requests
 
 from flask import Flask, request
 
@@ -20,17 +21,32 @@ device_settings = {
     INPUT_TOLERANCES: None
 }
 
-MAX_BUFFER_SIZE = 30    # max length of valid user input
-user_inputs = []        # user input list
+MAX_BUFFER_SIZE = 30  # max length of valid user input
+user_inputs = []  # user input list
 
 historical_inputs = list()
 
 classifier = None
 
+current_stage = 'LOGIN'
+
 
 @app.route("/")
 def homeAPI():
-    return "Welcome Processing Server!"
+    return {'id': 'Gazepoint Authentication System Processor'}
+
+
+#######################################
+##    Calibration Related Requests   ##
+#######################################
+@app.route("/calibration", methods=["PUT"])
+def calibrationAPI():
+    try:
+        data = requests.get("http://127.0.0.1:5432")
+    except:
+        return ('Gaze server connection fail',
+                http.HTTPStatus.INTERNAL_SERVER_ERROR)
+    return ('', http.HTTPStatus.OK)
 
 
 ####################################
@@ -96,9 +112,10 @@ def handle_update_device_settings(settings: dict):
             new_settings[key] = value
     device_settings.update(new_settings)
 
-    global user_inputs, classifier
-    user_inputs = []
-    classifier = GMM_Classifier(device_settings[INPUT_CENTERS])
+    if device_settings[INPUT_CENTERS]:
+        global user_inputs, classifier
+        user_inputs = []
+        classifier = GMM_Classifier(device_settings[INPUT_CENTERS])
 
     app.logger.info("Update Successful!")
     return True, None
@@ -150,20 +167,17 @@ def user_inputsAPI():
     """
     data = json.loads(request.get_data())
     if len(data) > 2:
-        return (TOO_MANY_PARAMETERS,
-                http.HTTPStatus.BAD_REQUEST)
+        return (TOO_MANY_PARAMETERS, http.HTTPStatus.BAD_REQUEST)
 
     x = y = None
     try:
         x = data["x"]
     except:
-        return (MISSING_PARAMETER.format("x"),
-                http.HTTPStatus.BAD_REQUEST)
+        return (MISSING_PARAMETER.format("x"), http.HTTPStatus.BAD_REQUEST)
     try:
         y = data["y"]
     except:
-        return (MISSING_PARAMETER.format("y"),
-                http.HTTPStatus.BAD_REQUEST)
+        return (MISSING_PARAMETER.format("y"), http.HTTPStatus.BAD_REQUEST)
 
     handle_post_user_inputs(x, y)
     return ('', http.HTTPStatus.CREATED)
@@ -187,8 +201,8 @@ def handle_post_user_inputs(x: int, y: int):
     """
     if len(user_inputs) > MAX_BUFFER_SIZE:
         user_inputs.pop(0)
-        centers, covs = classifier.classify_inputs(user_inputs,
-                                                   device_settings[INPUT_TOLERANCES])
+        centers, covs = classifier.classify_inputs(
+            user_inputs, device_settings[INPUT_TOLERANCES])
         app.logger.info("classify result:\n{}\n{}".format(centers, covs))
 
     user_inputs.append([x, y])
@@ -226,6 +240,31 @@ def handle_get_authentication_results():
         "last_input": random.choice([None, *list(range(1, 9))])
     }
 
+
+####################################
+##      Stage Related Requests    ##
+####################################
+@app.route('/stage', methods=["GET"])
+def current_stageAPI():
+    """GET Current Stage
+
+    Returns
+    -------
+    Response
+    {
+        "content": {
+            "stage": str,
+            "params": list or None
+        }
+    }
+    """
+    # TODO
+    global current_stage
+    return {
+        "stage": current_stage,
+    }
+
+
 # @app.route("/results", methods=["GET", "POST"])
 # def authentication_resultsAPI():
 #     global historical_inputs
@@ -246,6 +285,5 @@ def handle_get_authentication_results():
 #     else:
 #         return ('', http.HTTPStatus.BAD_REQUEST)
 
-
 if __name__ == "__main__":
-    app.run(debug=True, port=5050)
+    app.run(debug=False, port=5050, host=('0.0.0.0'))

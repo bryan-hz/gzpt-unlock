@@ -27,7 +27,8 @@ class App():
 
     def wait_instruction(self):
         # Wait for Processor Instruction
-        logging.info(' Wait for further instruction from processor')
+        # http://127.0.0.1:5432 GET
+        logging.info(" Wait for further instruction from processor")
         listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         listener.bind(('127.0.0.1', 5432))
@@ -39,13 +40,16 @@ class App():
 
     def calibrate(self):
         # Do calibration
+        logging.info(" Calibration Starts")
         try:
             self.gazepoint.calibrate()
         except:
             logging.error(" Exception during calibration\nExit")
+        logging.info(" Calibration Ends")
 
     def close(self):
         self.gazepoint.close()
+        logging.info(" Gazepoint connection closed")
 
 
 if __name__ == "__main__":
