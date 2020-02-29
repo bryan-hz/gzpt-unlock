@@ -1,3 +1,5 @@
+# @deprecated functionality moved to 
+# Gazepoint @ gazepoint.py
 from enum import Enum
 
 
