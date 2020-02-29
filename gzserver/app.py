@@ -58,22 +58,3 @@ if __name__ == "__main__":
     app.wait_instruction()
     app.calibrate()
     exit(0)
-
-
-# exit(0)
-# server.send('<SET ID="CALIBRATE_SHOW" STATE="1" />\r\n')
-# print(server.recv())
-# server.send('<SET ID="CALIBRATE_START" STATE="1" />\r\n')
-# server.recv()
-# while True:
-#     data = server.recv()
-#     print(data)
-#     root = ET.fromstring(data)
-
-#     if root.get("ID") == "CALIB_RESULT":
-#         print("done")
-# #         server.send('<SET ID="CALIBRATE_SHOW" STATE="0" />\r\n')
-# #         print(server.recv())
-#         server.send('<SET ID="CALIBRATE_START" STATE="0" />\r\n')
-#         print(server.recv())
-#         break
