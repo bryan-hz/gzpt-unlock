@@ -4,6 +4,7 @@ import routes from './constants/routes.json';
 import App from './containers/App';
 import Home from './containers/Home';
 import RegistrationInstruction from './containers/RegistrationInstruction';
+import Preparation from './containers/Preparation';
 
 export default () => (
   <App>
@@ -13,6 +14,7 @@ export default () => (
         path={routes.REGISTER_INSTRUCTION}
         component={RegistrationInstruction}
       />
+      <Route path={routes.PREPARATION} component={Preparation} />
     </Switch>
   </App>
 );
