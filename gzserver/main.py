@@ -1,6 +1,8 @@
+# @deprecated please run app.py instead
 import json
 import time
 import xml.etree.ElementTree as ET
+import numpy as np
 
 import requests
 
@@ -10,7 +12,7 @@ from utils.tagtype import TagType
 
 MOCK_FLAG = True
 
-machine_host = '192.168.0.26'
+machine_host = '100.64.189.236'
 machine_port = 4242
 
 screen_width = None
@@ -50,9 +52,29 @@ print(server.recv())
 server.send(EnableDataStream().set_state(1).get_xml(TagType.SET))
 print(server.recv())
 
+history = []
+false_count = 0
+while false_count < 60:
+    data = server.recv()
+    # print(data)
+    try:
+        root = ET.fromstring(data)
+    except:
+        continue
+    if root.get("BPOGV") == "1":
+        false_count = 0
+        x = root.get("BPOGX")
+        y = root.get("BPOGY")
+        history.append([float(x), float(y)])
+        print(x, y)
+    else:
+        false_count += 1
+np.save('data.npy', np.array(history))
+exit(0)
+
 while True:
     data = server.recv()
-    print(data)
+    # print(data)
     try:
         root = ET.fromstring(data)
     except:
@@ -61,4 +83,5 @@ while True:
         x = root.get("BPOGX")
         y = root.get("BPOGY")
         print(x, y)
-        requests.post("http://127.0.0.1:5050/inputs", json={"x": x, "y": y})
+        # requests.post("http://127.0.0.1:5050/inputs", json={"x": x, "y": y})
+
