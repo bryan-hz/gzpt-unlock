@@ -15,3 +15,8 @@ export const gotoRegisterInstruction = () => ({
   type: REDIRECT,
   payload: routes.REGISTER_INSTRUCTION
 });
+
+export const gotoPassword = () => ({
+  type: REDIRECT,
+  payload: routes.PASSWORD_ENTRY
+});

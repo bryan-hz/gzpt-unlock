@@ -1,5 +1,6 @@
 {
   "PREPARATION": "/",
   "HOME": "/home",
-  "REGISTER_INSTRUCTION": "/register/instruction"
+  "REGISTER_INSTRUCTION": "/home/register",
+  "PASSWORD_ENTRY": "/home/register/password"
 }
