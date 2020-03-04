@@ -20,3 +20,13 @@ export const gotoPassword = () => ({
   type: REDIRECT,
   payload: routes.PASSWORD_ENTRY
 });
+
+export const gotoRegistered = () => ({
+  type: REDIRECT,
+  payload: routes.REGISTERED
+});
+
+export const gotoComplete = () => ({
+  type: REDIRECT,
+  payload: routes.COMPLETE
+});

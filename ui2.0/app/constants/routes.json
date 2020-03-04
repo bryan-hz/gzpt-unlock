@@ -2,5 +2,7 @@
   "PREPARATION": "/",
   "HOME": "/home",
   "REGISTER_INSTRUCTION": "/home/register",
-  "PASSWORD_ENTRY": "/home/register/password"
+  "PASSWORD_ENTRY": "/home/register/password",
+  "REGISTERED": "/home/register/registered",
+  "COMPLETE": "/home/complete"
 }
