@@ -8,6 +8,7 @@ import Preparation from './containers/Preparation';
 import PasswordEntry from './containers/PasswordEntry';
 import Registered from './containers/Registered';
 import Completed from './containers/Completed';
+import InputInstruction from './containers/InputInstruction';
 
 export default () => (
   <App>
@@ -19,6 +20,7 @@ export default () => (
         path={routes.REGISTER_INSTRUCTION}
         component={RegistrationInstruction}
       />
+      <Route path={routes.LOGIN_INSTRUCTION} component={InputInstruction} />
       <Route path={routes.COMPLETE} component={Completed} />
       <Route path={routes.HOME} component={Home} />
     </Switch>
