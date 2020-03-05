@@ -1,5 +1,6 @@
 import socket
 import xml.etree.ElementTree as ET
+from collections import defaultdict
 
 
 class Gazepoint():
@@ -45,6 +46,9 @@ class Gazepoint():
                 self._end_calibrate()
                 return True
 
+    def read(self):
+        return self._recv()
+
     def _start_calibrate(self):
         self._send('<SET ID="CALIBRATE_START" STATE="1" />\r\n')
         return self._recv()
@@ -61,6 +65,34 @@ class Gazepoint():
         self._send('<SET ID="CALIBRATE_SHOW" STATE="0" />\r\n')
         return self._recv()
 
+    ###################
+    ##  Data Stream  ##
+    ###################
+    def enable_data_stream(self):
+        self._send(
+            '<SET ID="SCREEN_SIZE" X="0" Y="0" WIDTH="1920" HEIGHT="1080"/>\r\n')
+        _ = self._recv()
+        self._send('<SET ID="ENABLE_SEND_POG_BEST" STATE="1" />\r\n')
+        _ = self._recv()
+        self._send('<SET ID="ENABLE_SEND_DATA" STATE="1" />\r\n')
+        return self._recv()
+
+    def reset_data_stream(self):
+        self._send('<SET ID="ENABLE_SEND_POG_BEST" STATE="0" />\r\n')
+        _ = self._recv()
+        self._send('<SET ID="ENABLE_SEND_DATA" STATE="0" />\r\n')
+        return self._recv()
+
+    def read_position(self, max_fail_times=float('inf')) -> list:
+        fail_times = 0
+        while fail_times < max_fail_times:
+            response = self._recv()
+            if response["BPOGV"] == "1":
+                return [response["BPOGX"], response["BPOGY"]]
+            else:
+                fail_times += 1
+        return []
+
     ###############
     ##  Control  ##
     ###############
@@ -72,4 +104,8 @@ class Gazepoint():
     def _recv(self, buffer_size=1024):
         data = bytes.decode(
             self.socket.recv(buffer_size))
-        return dict(ET.fromstring(data).items())
+        try:
+            return defaultdict(str,
+                               ET.fromstring(data).items())
+        except:
+            return defaultdict(str)
