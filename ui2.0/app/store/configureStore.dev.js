@@ -7,6 +7,7 @@ import createSagaMiddleware from 'redux-saga';
 import createRootReducer from '../reducers';
 import * as counterActions from '../actions/counter';
 import * as redirectActions from '../actions/redirect';
+import * as passwordActions from '../actions/password';
 
 const history = createHashHistory();
 
@@ -43,7 +44,8 @@ const configureStore = initialState => {
   const actionCreators = {
     ...counterActions,
     ...redirectActions,
-    ...routerActions
+    ...routerActions,
+    ...passwordActions
   };
   // If Redux DevTools Extension is installed use it, otherwise use Redux compose
   /* eslint-disable no-underscore-dangle */

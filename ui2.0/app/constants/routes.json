@@ -3,6 +3,7 @@
   "HOME": "/home",
   "REGISTER_INSTRUCTION": "/home/register",
   "PASSWORD_ENTRY": "/home/password",
+  "PASSWORD_REENTER": "/home/password/reenter",
   "REGISTERED": "/home/register/registered",
   "COMPLETE": "/home/complete",
   "LOGIN_INSTRUCTION": "/home/login"
