@@ -1,0 +1,61 @@
+{
+    "entry": "preparation",
+    "preparation": {
+        "multi-branching": false,
+        "config-file": null,
+        "next": "home"
+    },
+    "home": {
+        "multi-branching": true,
+        "config-file": "home.json",
+        "next": {
+            "LOGIN": "login_instruction",
+            "RESET": "register_instruction"
+        }
+    },
+    "register_instruction": {
+        "multi-branching": true,
+        "config-file": null,
+        "next": {
+            "READY": "register_input_phase_two",
+            "BACK": "home"
+        }
+    },
+    "register_input_phase_one": {
+        "multi-branching": false,
+        "custom-condition": true,
+        "config-file": null,
+        "next": "register_input_phase_two"
+    },
+    "register_input_phase_two": {
+        "multi-branching": true,
+        "custom-condition": true,
+        "config-file": null,
+        "next": {
+            "True": "complete",
+            "False": "register_input_phase_one"
+        }
+    },
+    "login_instruction": {
+        "multi-branching": true,
+        "config-file": null,
+        "next": {
+            "READY": "login_input",
+            "BACK": "home"
+        }
+    },
+    "login_input": {
+        "multi-branching": true,
+        "custom-condition": true,
+        "config-file": null,
+        "next": {
+            "True": "complete",
+            "False": "login_input"
+        }
+    },
+    "complete": {
+        "multi-branching": false,
+        "config-file": null,
+        "next": null
+    }
+}
