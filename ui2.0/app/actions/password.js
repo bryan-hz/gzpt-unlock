@@ -1,11 +1,11 @@
 import { SET_REENTER } from 'constants/password';
 
-export const setReenter = () => ({
+export const showReenter = () => ({
   type: SET_REENTER,
-  payload: 1
+  payload: true
 });
 
 export const hideReenter = () => ({
   type: SET_REENTER,
-  payload: 0
+  payload: false
 });

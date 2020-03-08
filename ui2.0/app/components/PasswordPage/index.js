@@ -7,8 +7,8 @@ const StyledPrompt = styled.img`
   position: absolute;
   left: ${props => props.left}px;
   top: ${props => props.top}px;
+  opacity: ${props => (props.showReenter ? 100 : 0)}%;
   z-index: 999;
-  opacity: ${props => props.opacity};
 `;
 
 export default ({ showReenter }) => (
@@ -16,8 +16,8 @@ export default ({ showReenter }) => (
     <StyledPrompt
       left={0}
       top={401}
-      opacity={showReenter}
       src={PasswordReenter}
+      showReenter={showReenter}
       alt="password reenter"
     />
     <img src={PasswordpageIMG} alt="password entry" />

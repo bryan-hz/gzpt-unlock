@@ -1,7 +1,7 @@
 import { SET_REENTER } from 'constants/password';
 
 const initialState = {
-  showReenter: 0
+  showReenter: false
 };
 
 export default (state = initialState, { type, payload }) => {
