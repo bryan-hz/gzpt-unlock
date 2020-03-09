@@ -17,7 +17,7 @@
         "multi-branching": true,
         "config-file": null,
         "next": {
-            "READY": "register_input_phase_two",
+            "READY": "register_input_phase_one",
             "BACK": "home"
         }
     },

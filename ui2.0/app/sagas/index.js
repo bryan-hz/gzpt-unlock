@@ -21,13 +21,19 @@ import {
   setCalibrationCountdown
 } from 'actions/preparation';
 import { gotoHome, gotoRegisterInstruction } from 'actions/redirect';
+import { setInputs } from '../actions/password';
 
 const getUrl = ({ host, location }) =>
   `http://${host || LOCAL_HOST}:5050${location || ''}`;
 
 const DISCONNECT = 'SAGA/ACTION/DISCONNECT_PROCESSOR';
 
-function* updateStageSaga({ currentStage, nextStage, transitionDelay }) {
+function* updateStageSaga({
+  currentStage,
+  nextStage,
+  transitionDelay,
+  params
+}) {
   switch (currentStage) {
     case 'home':
       if (!_isEmpty(nextStage)) {
@@ -35,10 +41,20 @@ function* updateStageSaga({ currentStage, nextStage, transitionDelay }) {
         yield put(gotoRegisterInstruction());
       }
       break;
-
-    case 'complete':
+    // TODO: Add more cases
+    case 'register_input_phase_one': {
+      if (_isEmpty(nextStage)) {
+        const { buttons, links } = params;
+        yield put(setInputs({ buttons, links }));
+      } else {
+        // TODO
+      }
+      break;
+    }
+    case 'complete': {
       yield put(DISCONNECT);
       break;
+    }
     default:
       break;
   }
