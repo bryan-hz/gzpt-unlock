@@ -1,27 +1,21 @@
 import http
+import logging
 
 import requests
 from flask import Flask, g, json, request
+
 from processor import Processor
-import logging
 
 app = Flask(__name__)
 
 root = logging.getLogger()
 root.setLevel(logging.DEBUG)
 
-historical_inputs = list()
-
-current_stage = 'LOGIN'
 processor = Processor()
 
 
 @app.route("/")
 def homeAPI():
-    ctx = app.app_context()
-    ctx.push()
-    g.a = 1
-    print(g.a)
     return {'id': 'Gazepoint Authentication System Processor'}
 
 
@@ -30,6 +24,8 @@ def homeAPI():
 #######################################
 @app.route("/calibration", methods=["PUT"])
 def calibrationAPI():
+    # TODO: Remove next line to start gaze server
+    return ('', http.HTTPStatus.OK)
     try:
         data = requests.get("http://127.0.0.1:5432")
     except:
@@ -41,7 +37,7 @@ def calibrationAPI():
 ########################################
 ##    User Inputs Related Requests    ##
 ########################################
-@app.route("/inputs", methods=["POST"])
+@app.route("/input", methods=["POST"])
 def user_inputsAPI():
     """API for storing new user input
     payload is json style of shape:\n
@@ -55,7 +51,7 @@ def user_inputsAPI():
     data = json.loads(request.get_data())
     processor.process(data["data"])
 
-    content = { "action": None }
+    content = {"action": None}
 
     return (content, http.HTTPStatus.CREATED)
 
@@ -72,13 +68,13 @@ def current_stageAPI():
     Response
     {
         "content": {
-            "stage": str,
-            "params": list or None
+            "currentStage": str,
+            "nextStage": str,
+            "transitionDelay": float,
+            "params": {} or null
         }
     }
     """
-    # TODO
-    
     return processor.get_stage_info()
 
 

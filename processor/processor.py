@@ -55,8 +55,8 @@ class Processor(object):
                                                   time.time())
         logging.info(f" Current configs: {self.configs}")
         return {
-            "current_stage": self.current_stage,
-            "next_stage": self.next_stage,
-            "transition_delay": transition_delay,
+            "currentStage": self.current_stage,
+            "nextStage": self.next_stage,
+            "transitionDelay": transition_delay,
             "params": None
         }
