@@ -1,12 +1,18 @@
-import { SET_REENTER, SET_INPUTS, SET_INCORRECT } from 'constants/password';
+import {
+  SET_REENTER,
+  SET_CORRECT,
+  SET_INCORRECT,
+  SET_MISMATCH,
+  SET_INPUTS
+} from 'constants/password';
 
 export const showReenter = () => ({
-  type: pw_states.SET_REENTER,
+  type: SET_REENTER,
   payload: true
 });
 
 export const hideReenter = () => ({
-  type: pw_states.SET_REENTER,
+  type: SET_REENTER,
   payload: false
 });
 
@@ -15,21 +21,31 @@ export const setInputs = payload => ({
   payload
 
 export const showIncorrect = () => ({
-  type: pw_states.SET_INCORRECT,
+  type: SET_INCORRECT,
   payload: true
 });
 
 export const hideIncorrect = () => ({
-  type: pw_states.SET_INCORRECT,
+  type: SET_INCORRECT,
   payload: false
 });
 
 export const showCorrect = () => ({
-  type: pw_states.SET_CORRECT,
+  type: SET_CORRECT,
   payload: true
 });
 
 export const hideCorrect = () => ({
-  type: pw_states.SET_CORRECT,
+  type: SET_CORRECT,
+  payload: false
+});
+
+export const showMismatch = () => ({
+  type: SET_MISMATCH,
+  payload: true
+});
+
+export const hideMismatch = () => ({
+  type: SET_MISMATCH,
   payload: false
 });

@@ -7,6 +7,11 @@ export const selectShowReenter = createSelector(
   substate => substate.showReenter
 );
 
+export const selectShowMismatch = createSelector(
+  selectPasswordDomain,
+  substate => substate.showMismatch
+);
+
 export const selectActiveButtons = createSelector(
   selectPasswordDomain,
   substate => substate.activeButtons

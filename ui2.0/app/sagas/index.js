@@ -26,7 +26,17 @@ import {
   gotoLoginInstruction,
   gotoPassword
 } from 'actions/redirect';
-import { showReenter, hideReenter, setInputs } from '../actions/password';
+import {
+  showReenter,
+  hideReenter,
+  showIncorrect,
+  hideIncorrect,
+  showCorrect,
+  hideCorrect,
+  showMismatch,
+  hideMismatch,
+  setInputs
+} from '../actions/password';
 
 const getUrl = ({ host, location }) =>
   `http://${host || LOCAL_HOST}:5050${location || ''}`;
@@ -71,8 +81,6 @@ function* updateStageSaga({
         yield put(showReenter());
       } else {
         yield put(hideReenter());
-        const { buttons, links } = [];
-        yield put(setInputs({ buttons, links }));
       }
       break;
     }
@@ -80,10 +88,16 @@ function* updateStageSaga({
       if (_isEmpty(nextStage)) {
         const { buttons, links } = params;
         yield put(setInputs({ buttons, links }));
+      } else if (nextStage === 'register_input_phase_one') {
+        if (transitionDelay !== 0) {
+          yield put(showMismatch());
+        } else {
+          yield put(hideMismatch());
+        }
+      } else if (transitionDelay !== 0) {
+        //yield put()
       } else {
-        // TODO:
-        // If match, display registered page
-        // If mismatch, prompt mismatch and go to phase one
+        //yield put();
       }
       break;
     }
@@ -108,6 +122,10 @@ function* updateStageSaga({
         // If correct, display correct prompt and go to complete
         // If incorrect, display incorrect prompt with either num of tries left or unlock time
         //    - clear all buttons and links
+        if (nextStage === 'login_input') {
+          if (transitionDelay !== 0) {
+          }
+        }
       }
       break;
     }
