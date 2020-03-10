@@ -29,3 +29,8 @@ export const hideCorrect = () => ({
   type: pw_states.SET_CORRECT,
   payload: false
 });
+
+export const setInputs = payload => ({
+  type: SET_INPUTS,
+  payload
+});

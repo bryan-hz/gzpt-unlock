@@ -20,30 +20,57 @@ import {
   saveInput,
   setCalibrationCountdown
 } from 'actions/preparation';
-import { gotoHome } from 'actions/redirect';
+import { gotoHome, gotoRegisterInstruction } from 'actions/redirect';
+import { setInputs } from '../actions/password';
 
 const getUrl = ({ host, location }) =>
   `http://${host || LOCAL_HOST}:5050${location || ''}`;
-// const url = 'http://127.0.0.1:5050/stage';
-const POLL_START = 'start';
-const POLL_STOP = 'end';
 
-function* fetchStage() {
+const DISCONNECT = 'SAGA/ACTION/DISCONNECT_PROCESSOR';
+
+function* updateStageSaga({
+  currentStage,
+  nextStage,
+  transitionDelay,
+  params
+}) {
+  switch (currentStage) {
+    case 'home':
+      if (!_isEmpty(nextStage)) {
+        yield delay(transitionDelay * 1000);
+        yield put(gotoRegisterInstruction());
+      }
+      break;
+    // TODO: Add more cases
+    case 'register_input_phase_one': {
+      if (_isEmpty(nextStage)) {
+        const { buttons, links } = params;
+        yield put(setInputs({ buttons, links }));
+      } else {
+        // TODO
+      }
+      break;
+    }
+    case 'complete': {
+      yield put(DISCONNECT);
+      break;
+    }
+    default:
+      break;
+  }
+}
+
+function* checkStageLoop({ host }) {
   while (true) {
-    const url = getUrl({ location: 'stage' });
+    const url = getUrl({ host, location: '/stage' });
     const data = yield fetch(url, {
       method: 'GET'
     }).then(response => response.json());
     console.log(data);
 
-    yield delay(1000);
-  }
-}
+    yield call(updateStageSaga, data);
 
-function* actionWatcher() {
-  while (true) {
-    yield take(POLL_START);
-    yield race([call(fetchStage), take(POLL_STOP)]);
+    yield delay(300);
   }
 }
 
@@ -62,6 +89,7 @@ function* startCalibrationSage({ host }) {
   } catch (exception) {
     console.error('Processing server error');
   }
+  yield race([call(checkStageLoop, { host }), take(DISCONNECT)]);
 }
 
 function* tryConnectSaga({ payload }) {
@@ -83,6 +111,7 @@ function* tryConnectSaga({ payload }) {
       yield put(setVerified(false));
     }
   } catch (exception) {
+    console.error(exception);
     yield put(setConnecting(false));
     yield put(setVerified(false));
   }
@@ -104,5 +133,5 @@ function* redirectWatcher() {
 }
 
 export default function* rootSaga() {
-  yield all([actionWatcher(), redirectWatcher(), tryConnectWatcher()]);
+  yield all([redirectWatcher(), tryConnectWatcher()]);
 }
