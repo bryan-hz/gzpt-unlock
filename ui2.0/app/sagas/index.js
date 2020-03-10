@@ -24,7 +24,9 @@ import {
   gotoHome,
   gotoRegisterInstruction,
   gotoLoginInstruction,
-  gotoPassword
+  gotoPassword,
+  gotoRegistered,
+  gotoComplete
 } from 'actions/redirect';
 import {
   showReenter,
@@ -60,7 +62,6 @@ function* updateStageSaga({
         }
       }
       break;
-    // TODO: Add more cases
     case 'register_instruction':
     case 'login_instruction': {
       if (!_isEmpty(nextStage)) {
@@ -95,21 +96,16 @@ function* updateStageSaga({
           yield put(hideMismatch());
         }
       } else if (transitionDelay !== 0) {
-        //yield put()
+        yield put(gotoRegistered());
       } else {
-        //yield put();
+        yield put(gotoComplete());
       }
       break;
     }
     case 'complete': {
-      // yield put(DISCONNECT);
       if (!_isEmpty(nextStage)) {
         yield delay(transitionDelay * 1000);
-        if (nextStage === 'home') {
-          yield put(gotoHome());
-        } else {
-          yield put(gotoPassword());
-        }
+        yield put(gotoHome());
       }
       break;
     }
@@ -117,15 +113,17 @@ function* updateStageSaga({
       if (_isEmpty(nextStage)) {
         const { buttons, links } = params;
         yield put(setInputs({ buttons, links }));
-      } else {
-        // TODO:
-        // If correct, display correct prompt and go to complete
-        // If incorrect, display incorrect prompt with either num of tries left or unlock time
-        //    - clear all buttons and links
-        if (nextStage === 'login_input') {
-          if (transitionDelay !== 0) {
-          }
+      } else if (nextStage === 'login_input') {
+        if (transitionDelay !== 0) {
+          yield put(showIncorrect());
+        } else {
+          yield put(hideIncorrect());
         }
+      } else if (transitionDelay !== 0) {
+        yield put(showCorrect());
+      } else {
+        yield put(hideCorrect());
+        yield put(gotoComplete());
       }
       break;
     }
