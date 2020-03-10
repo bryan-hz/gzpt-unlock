@@ -11,3 +11,8 @@ export const selectShowIncorrect = createSelector(
   selectPasswordDomain,
   substate => substate.showIncorrect
 );
+export const selectShowCorrect = createSelector(
+  // TODO: the props show be different from incorrect and correct after reentering?
+  selectPasswordDomain,
+  substate => substate.showCorrect
+);
