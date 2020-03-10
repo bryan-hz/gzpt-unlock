@@ -20,9 +20,13 @@ import {
   saveInput,
   setCalibrationCountdown
 } from 'actions/preparation';
-// import { gotoHome, gotoRegisterInstruction } from 'actions/redirect';
-import * as redirect from 'actions/redirect';
-import * as password from '../actions/password';
+import {
+  gotoHome,
+  gotoRegisterInstruction,
+  gotoLoginInstruction,
+  gotoPassword
+} from 'actions/redirect';
+import { showReenter, hideReenter, setInputs } from '../actions/password';
 
 const getUrl = ({ host, location }) =>
   `http://${host || LOCAL_HOST}:5050${location || ''}`;
@@ -40,9 +44,9 @@ function* updateStageSaga({
       if (!_isEmpty(nextStage)) {
         yield delay(transitionDelay * 1000);
         if (nextStage === 'register_instruction') {
-          yield put(redirect.gotoRegisterInstruction());
+          yield put(gotoRegisterInstruction());
         } else {
-          yield put(redirect.gotoLoginInstruction());
+          yield put(gotoLoginInstruction());
         }
       }
       break;
@@ -52,9 +56,9 @@ function* updateStageSaga({
       if (!_isEmpty(nextStage)) {
         yield delay(transitionDelay * 1000);
         if (nextStage === 'home') {
-          yield put(redirect.gotoHome());
+          yield put(gotoHome());
         } else {
-          yield put(redirect.gotoPassword());
+          yield put(gotoPassword());
         }
       }
       break;
@@ -62,20 +66,20 @@ function* updateStageSaga({
     case 'register_input_phase_one': {
       if (_isEmpty(nextStage)) {
         const { buttons, links } = params;
-        yield put(password.setInputs({ buttons, links }));
+        yield put(setInputs({ buttons, links }));
       } else if (transitionDelay !== 0) {
-        yield put(password.showReenter());
+        yield put(showReenter());
       } else {
-        yield put(password.hideReenter());
+        yield put(hideReenter());
         const { buttons, links } = [];
-        yield put(password.setInputs({ buttons, links }));
+        yield put(setInputs({ buttons, links }));
       }
       break;
     }
     case 'register_input_phase_two': {
       if (_isEmpty(nextStage)) {
         const { buttons, links } = params;
-        yield put(password.setInputs({ buttons, links }));
+        yield put(setInputs({ buttons, links }));
       } else {
         // TODO:
         // If match, display registered page
@@ -88,9 +92,9 @@ function* updateStageSaga({
       if (!_isEmpty(nextStage)) {
         yield delay(transitionDelay * 1000);
         if (nextStage === 'home') {
-          yield put(redirect.gotoHome());
+          yield put(gotoHome());
         } else {
-          yield put(redirect.gotoPassword());
+          yield put(gotoPassword());
         }
       }
       break;
@@ -98,7 +102,7 @@ function* updateStageSaga({
     case 'login_input': {
       if (_isEmpty(nextStage)) {
         const { buttons, links } = params;
-        yield put(password.setInputs({ buttons, links }));
+        yield put(setInputs({ buttons, links }));
       } else {
         // TODO:
         // If correct, display correct prompt and go to complete
@@ -137,7 +141,7 @@ function* startCalibrationSage({ host }) {
   const url = getUrl({ host, location: '/calibration' });
   try {
     yield fetch(url, { method: 'PUT' });
-    yield put(redirect.gotoHome());
+    yield put(gotoHome());
   } catch (exception) {
     console.error('Processing server error');
   }
