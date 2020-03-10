@@ -6,6 +6,7 @@ import PasswordPage from 'components/PasswordPage';
 import PasswordPattern from 'components/PasswordPattern';
 import {
   selectShowReenter,
+  selectShowIncorrect,
   selectActiveButtons,
   selectActiveLinks
 } from 'selectors/password';
@@ -18,11 +19,12 @@ class PasswordEntry extends React.PureComponent {
   };
 
   render() {
-    const { showReenter, activeButtons, activeLinks } = this.props;
+    const { showReenter, showIncorrect, activeButtons, activeLinks } = this.props;
 
     return (
       <div>
         <PasswordPage showReenter={showReenter} />
+        <PasswordPage showIncorrect={showIncorrect} />
         <PasswordPattern buttons={activeButtons} links={activeLinks} />
       </div>
     );
@@ -33,6 +35,7 @@ const mapStateToProps = state => ({
   showReenter: selectShowReenter(state),
   activeButtons: selectActiveButtons(state),
   activeLinks: selectActiveLinks(state)
+  showIncorrect: selectShowIncorrect(state)
 });
 
 export default connect(mapStateToProps)(PasswordEntry);

@@ -1,4 +1,4 @@
-import { SET_REENTER, SET_INPUTS } from 'constants/password';
+import { SET_REENTER, SET_INPUTS, SET_INCORRECT } from 'constants/password';
 
 export const showReenter = () => ({
   type: SET_REENTER,
@@ -13,4 +13,8 @@ export const hideReenter = () => ({
 export const setInputs = payload => ({
   type: SET_INPUTS,
   payload
+
+export const showIncorrect = () => ({
+  type: SET_INCORRECT,
+  payload: true
 });
