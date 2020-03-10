@@ -8,30 +8,37 @@ import {
   selectShowReenter,
   selectShowIncorrect,
   selectShowCorrect,
+  selectShowMismatch,
   selectActiveButtons,
   selectActiveLinks
 } from 'selectors/password';
 
-
 class PasswordEntry extends React.PureComponent {
   static propTypes = {
     showReenter: PropTypes.bool.isRequired,
+    showIncorrect: PropTypes.bool.isRequired,
+    showCorrect: PropTypes.bool.isRequired,
+    showMismatch: PropTypes.bool.isRequired,
     activeButtons: PropTypes.arrayOf(PropTypes.string).isRequired,
     activeLinks: PropTypes.arrayOf(PropTypes.string).isRequired
   };
 
   render() {
-
-    const { showReenter, showIncorrect, showCorrect, activeButtons, activeLinks} = this.props;
+    const {
+      showReenter,
+      showIncorrect,
+      showCorrect,
+      showMismatch,
+      activeButtons,
+      activeLinks
+    } = this.props;
     return (
       <div>
-        <PasswordPage showReenter={showReenter} />
-
-        <PasswordPage showIncorrect={showIncorrect} />
-        <PasswordPage showCorrect={showCorrect} />
-        <PasswordPattern
-          buttons={['1', '4', '3', '2']}
-          links={['14', '43', '32']}
+        <PasswordPage
+          showReenter={showReenter}
+          showIncorrect={showIncorrect}
+          showCorrect={showCorrect}
+          showMismatch={showMismatch}
         />
         <PasswordPattern buttons={activeButtons} links={activeLinks} />
       </div>
@@ -43,6 +50,7 @@ const mapStateToProps = state => ({
   showReenter: selectShowReenter(state),
   showIncorrect: selectShowIncorrect(state),
   showCorrect: selectShowCorrect(state),
+  showMismatch: selectShowMismatch(state),
   activeButtons: selectActiveButtons(state),
   activeLinks: selectActiveLinks(state)
 });

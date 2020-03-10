@@ -16,6 +16,11 @@ export const selectShowCorrect = createSelector(
   substate => substate.showCorrect
 );
 
+export const selectShowMismatch = createSelector(
+  selectPasswordDomain,
+  substate => substate.showMismatch
+);
+
 export const selectActiveButtons = createSelector(
   selectPasswordDomain,
   substate => substate.activeButtons
