@@ -11,7 +11,7 @@ app = Flask(__name__)
 root = logging.getLogger()
 root.setLevel(logging.DEBUG)
 
-processor = Processor()
+processor = None
 
 
 @app.route("/")
@@ -24,6 +24,8 @@ def homeAPI():
 #######################################
 @app.route("/calibration", methods=["PUT"])
 def calibrationAPI():
+    global processor
+    processor = Processor()
     # TODO: Remove next line to start gaze server
     return ('', http.HTTPStatus.OK)
     try:
@@ -44,16 +46,13 @@ def user_inputsAPI():
     {
         "data": [float, float]
     }
-
-    > if user input is successfully stored
-      server will return Created
     """
     data = json.loads(request.get_data())
-    processor.process(data["data"])
+    accepted, complete = processor.process(data["data"])
 
-    content = {"action": None}
+    content = {"clear": not accepted, 'complete': complete}
 
-    return (content, http.HTTPStatus.CREATED)
+    return (content, http.HTTPStatus.OK)
 
 
 ####################################
@@ -74,6 +73,10 @@ def current_stageAPI():
             "params": {} or null
         }
     }
+
+    Note:
+    /calibration need to be called once before
+    this api to be available
     """
     return processor.get_stage_info()
 

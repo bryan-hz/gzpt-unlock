@@ -1,3 +1,4 @@
+import json
 import logging
 import socket
 import sys
@@ -5,6 +6,7 @@ import xml.etree.ElementTree as ET
 from collections import deque
 
 import numpy as np
+import requests
 from sklearn.mixture import GaussianMixture
 
 from utils.gazepoint import Gazepoint
@@ -69,16 +71,13 @@ class App():
 
             valid_center = self._get_valid_center(historical_data)
             if valid_center is not None:
-                login_dist = np.linalg.norm(
-                    np.array([0.5000, 0.5861]) - np.array(valid_center))
-                reset_dist = np.linalg.norm(
-                    np.array([0.8172, 0.8083]) - np.array(valid_center))
-                if login_dist < 0.1463:
-                    logging.info(" Login")
-                if reset_dist < 0.1417:
-                    logging.info(" Reset")
-                logging.info("{}, {}, {}".format(
-                    valid_center, login_dist, reset_dist))
+                res = requests.post("http://127.0.0.1:5050/input",
+                                    json={"data": valid_center})
+                data = json.load(res.content)
+                if data['complete']:
+                    return
+                if data['clear']:
+                    historical_data.clear()
 
     def _get_valid_center(self, positions: list, cov_threshold=2e-4):
         # Get mean of 2 gaussian distributions based on positions
@@ -111,7 +110,7 @@ if __name__ == "__main__":
     """
     gazepoint_addr = sys.argv[1]
     app = App(gazepoint_addr)
-    app.wait_instruction()
-    app.calibrate()
-    app.main_loop()
-    exit(0)
+    while True:
+        app.wait_instruction()
+        app.calibrate()
+        app.main_loop()
