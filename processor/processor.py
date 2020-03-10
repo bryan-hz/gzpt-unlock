@@ -1,9 +1,10 @@
 import json
 import logging
 import time
-import numpy as np
-from typing import Tuple, Union
 from collections import deque
+from typing import Tuple, Union
+
+import numpy as np
 
 MAX_TRIALS = 2
 TRANSITION_DELAY = 1
