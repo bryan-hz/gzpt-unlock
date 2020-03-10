@@ -10,6 +10,8 @@ MAX_TRIALS = 2
 TRANSITION_DELAY = 1
 REENTER_DELAY = 3
 INIT_PENALTY_DELAY = 10
+
+
 class Processor(object):
     def __init__(self):
         self.stages = self._load_stages()
@@ -87,6 +89,12 @@ class Processor(object):
     def process(self, position: list) -> Tuple[bool, bool]:
         if self.next_stage or self._is_done():
             return False, self._is_done()
+        if self._is_reset_area(position):
+            logging.info(" - RESET - Detected\n")
+            self.inputs.clear()
+            self.connections.clear()
+            return True, self._is_done()
+
         button = self._get_button(position)
 
         # if button and button not in self.inputs:
@@ -101,6 +109,14 @@ class Processor(object):
             else:
                 self._handle_common_rule()
         return True, self._is_done()
+
+    def _is_reset_area(self, position: list) -> bool:
+        if self.current_stage in ['register_input_phase_one',
+                                  'register_input_phase_two',
+                                  'login_input']:
+            if position[0] < 0.21875 or position[0] > 0.78125:
+                return True
+        return False
 
     def _get_button(self, position: list) -> Union[str, None]:
         for button_name, config in self.configs.items():
