@@ -6,6 +6,15 @@ export const selectShowReenter = createSelector(
   selectPasswordDomain,
   substate => substate.showReenter
 );
+export const selectShowIncorrect = createSelector(
+  selectPasswordDomain,
+  substate => substate.showIncorrect
+);
+
+export const selectShowCorrect = createSelector(
+  selectPasswordDomain,
+  substate => substate.showCorrect
+);
 
 export const selectActiveButtons = createSelector(
   selectPasswordDomain,
