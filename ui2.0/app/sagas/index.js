@@ -75,29 +75,27 @@ function* updateStageSaga({
       break;
     }
     case 'register_input_phase_one': {
-      if (_isEmpty(nextStage)) {
-        const { buttons, links } = params;
-        yield put(setInputs({ buttons, links }));
-      } else if (transitionDelay !== 0) {
+      const { buttons, links } = params;
+      yield put(setInputs({ buttons, links }));
+      if (transitionDelay !== 0) {
         yield put(showReenter());
-      } else {
+        yield delay(transitionDelay * 1000);
         yield put(hideReenter());
       }
       break;
     }
     case 'register_input_phase_two': {
-      if (_isEmpty(nextStage)) {
-        const { buttons, links } = params;
-        yield put(setInputs({ buttons, links }));
-      } else if (nextStage === 'register_input_phase_one') {
+      const { buttons, links } = params;
+      yield put(setInputs({ buttons, links }));
+      if (nextStage === 'register_input_phase_one') {
         if (transitionDelay !== 0) {
           yield put(showMismatch());
-        } else {
+          yield delay(transitionDelay * 1000);
           yield put(hideMismatch());
         }
       } else if (transitionDelay !== 0) {
         yield put(gotoRegistered());
-      } else {
+        yield delay(transitionDelay * 1000);
         yield put(gotoComplete());
       }
       break;
@@ -110,18 +108,17 @@ function* updateStageSaga({
       break;
     }
     case 'login_input': {
-      if (_isEmpty(nextStage)) {
-        const { buttons, links } = params;
-        yield put(setInputs({ buttons, links }));
-      } else if (nextStage === 'login_input') {
+      const { buttons, links } = params;
+      yield put(setInputs({ buttons, links }));
+      if (nextStage === 'login_input') {
         if (transitionDelay !== 0) {
           yield put(showIncorrect());
-        } else {
+          yield delay(transitionDelay * 1000);
           yield put(hideIncorrect());
         }
       } else if (transitionDelay !== 0) {
         yield put(showCorrect());
-      } else {
+        yield delay(transitionDelay * 1000);
         yield put(hideCorrect());
         yield put(gotoComplete());
       }
