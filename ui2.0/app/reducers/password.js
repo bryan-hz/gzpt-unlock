@@ -2,7 +2,8 @@ import { SET_REENTER, SET_INPUTS } from 'constants/password';
 
 const initialState = {
   showReenter: false,
-  showIncorrect: false
+  showIncorrect: false,
+  showCorrect: false,
   activeButtons: [],
   activeLinks: []
 };
@@ -24,6 +25,11 @@ export default (state = initialState, { type, payload }) => {
       return {
         ...state,
         showIncorrect: payload
+      };
+    case SET_CORRECT:
+      return {
+        ...state,
+        showCorrect: payload
       };
     default:
       return state;
