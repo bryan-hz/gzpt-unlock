@@ -18,11 +18,36 @@ const StyledPrompt = styled.img`
   z-index: 999;
 `;
 
+const Message = styled.p`
+  color: red;
+  position: absolute;
+  font-size: 50px;
+  line-height: 56px;
+  letter-spacing: -0.015em;
+  text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25);
+`;
+
+const RemainingTrialsMessage = styled(Message)`
+  left: 890px;
+  top: 493px;
+  opacity: ${props => (props.showPrompt ? 100 : 0)}%;
+  z-index: 999;
+`;
+
+const PenaltyTimeMessage = styled(Message)`
+  left: 1500px;
+  top: 493px;
+  opacity: ${props => (props.showPrompt ? 100 : 0)}%;
+  z-index: 999;
+`;
+
 const PasswordPage = ({
   showReenter,
   showIncorrect,
   showCorrect,
-  showMismatch
+  showMismatch,
+  remainingTrials,
+  nextPenaltyTime
 }) => (
   <div>
     <StyledPrompt
@@ -46,6 +71,13 @@ const PasswordPage = ({
       showPrompt={showIncorrect}
       alt="password incorrect"
     />
+    <RemainingTrialsMessage showPrompt={showIncorrect}>
+      {remainingTrials}
+    </RemainingTrialsMessage>
+    <PenaltyTimeMessage showPrompt={showIncorrect}>
+      {' '}
+      {`${nextPenaltyTime} sec`}
+    </PenaltyTimeMessage>
     <StyledPrompt
       left={0}
       top={401}
@@ -74,6 +106,8 @@ const PasswordPage = ({
 PasswordPage.propTypes = {
   showReenter: PropTypes.bool.isRequired,
   showIncorrect: PropTypes.bool.isRequired,
+  remainingTrials: PropTypes.number.isRequired,
+  nextPenaltyTime: PropTypes.number.isRequired,
   showCorrect: PropTypes.bool.isRequired,
   showMismatch: PropTypes.bool.isRequired
 };

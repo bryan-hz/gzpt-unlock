@@ -10,6 +10,8 @@ import {
   selectShowCorrect,
   selectShowMismatch,
   selectActiveButtons,
+  selectNextPenaltyTime,
+  selectRemainingTrials,
   selectActiveLinks
 } from 'selectors/password';
 
@@ -20,7 +22,9 @@ class PasswordEntry extends React.PureComponent {
     showCorrect: PropTypes.bool.isRequired,
     showMismatch: PropTypes.bool.isRequired,
     activeButtons: PropTypes.arrayOf(PropTypes.string).isRequired,
-    activeLinks: PropTypes.arrayOf(PropTypes.string).isRequired
+    activeLinks: PropTypes.arrayOf(PropTypes.string).isRequired,
+    nextPenaltyTime: PropTypes.number.isRequired,
+    remainingTrials: PropTypes.number.isRequired
   };
 
   render() {
@@ -30,7 +34,9 @@ class PasswordEntry extends React.PureComponent {
       showCorrect,
       showMismatch,
       activeButtons,
-      activeLinks
+      activeLinks,
+      nextPenaltyTime,
+      remainingTrials
     } = this.props;
     return (
       <div>
@@ -39,6 +45,8 @@ class PasswordEntry extends React.PureComponent {
           showIncorrect={showIncorrect}
           showCorrect={showCorrect}
           showMismatch={showMismatch}
+          nextPenaltyTime={nextPenaltyTime}
+          remainingTrials={remainingTrials}
         />
         <PasswordPattern buttons={activeButtons} links={activeLinks} />
       </div>
@@ -52,7 +60,9 @@ const mapStateToProps = state => ({
   showCorrect: selectShowCorrect(state),
   showMismatch: selectShowMismatch(state),
   activeButtons: selectActiveButtons(state),
-  activeLinks: selectActiveLinks(state)
+  activeLinks: selectActiveLinks(state),
+  nextPenaltyTime: selectNextPenaltyTime(state),
+  remainingTrials: selectRemainingTrials(state)
 });
 
 export default connect(mapStateToProps)(PasswordEntry);

@@ -1,6 +1,7 @@
 import {
   SET_REENTER,
   SET_INCORRECT,
+  SET_REJECT_PARAM,
   SET_CORRECT,
   SET_INPUTS,
   SET_MISMATCH
@@ -12,7 +13,9 @@ const initialState = {
   showCorrect: false,
   showMismatch: false,
   activeButtons: [],
-  activeLinks: []
+  activeLinks: [],
+  nextPenaltyTime: 0,
+  remainingTrials: 0
 };
 
 export default (state = initialState, { type, payload }) => {
@@ -32,6 +35,12 @@ export default (state = initialState, { type, payload }) => {
       return {
         ...state,
         showIncorrect: payload
+      };
+    case SET_REJECT_PARAM:
+      return {
+        ...state,
+        remainingTrials: payload.remainingTrials,
+        nextPenaltyTime: payload.nextPenaltyTime
       };
     case SET_CORRECT:
       return {
