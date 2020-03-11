@@ -41,6 +41,7 @@ import {
   setInputs,
   setIncorrectParam
 } from '../actions/password';
+import { setLoadingLogin, setLoadingReset } from '../actions/home';
 
 const getUrl = ({ host, location }) =>
   `http://${host || LOCAL_HOST}:5050${location || ''}`;
@@ -56,11 +57,16 @@ function* updateStageSaga({
   switch (currentStage) {
     case 'home':
       if (!_isEmpty(nextStage)) {
-        yield delay(transitionDelay * 1000);
         if (nextStage === 'register_instruction') {
+          yield put(setLoadingReset(true));
+          yield delay(transitionDelay * 1000);
           yield put(gotoRegisterInstruction());
+          yield put(setLoadingReset(false));
         } else {
+          yield put(setLoadingLogin(true));
+          yield delay(transitionDelay * 1000);
           yield put(gotoLoginInstruction());
+          yield put(setLoadingLogin(false));
         }
       }
       break;
