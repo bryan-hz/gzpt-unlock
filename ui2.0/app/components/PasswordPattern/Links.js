@@ -17,7 +17,7 @@ export default {
   '18': () => <Link120Degree key={_uniqueId()} left="606" top="205" />,
 
   '21': () => <Link0Degree key={_uniqueId()} left="610" top="199" />,
-  '23': () => <Link0Degree key={_uniqueId()} left="910" top="199" />,
+  '23': () => <Link0Degree key={_uniqueId()} left="953" top="199" />,
   '24': () => <Link45Degree key={_uniqueId()} left="610" top="199" />,
   '25': () => <Link90Degree key={_uniqueId()} left="948" top="206" />,
   '26': () => <Link135Degree key={_uniqueId()} left="954" top="204" />,

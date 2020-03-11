@@ -24,7 +24,9 @@ import {
   gotoHome,
   gotoRegisterInstruction,
   gotoLoginInstruction,
-  gotoPassword
+  gotoPassword,
+  gotoRegistered,
+  gotoComplete
 } from 'actions/redirect';
 import {
   showReenter,
@@ -60,7 +62,6 @@ function* updateStageSaga({
         }
       }
       break;
-    // TODO: Add more cases
     case 'register_instruction':
     case 'login_instruction': {
       if (!_isEmpty(nextStage)) {
@@ -74,58 +75,52 @@ function* updateStageSaga({
       break;
     }
     case 'register_input_phase_one': {
-      if (_isEmpty(nextStage)) {
-        const { buttons, links } = params;
-        yield put(setInputs({ buttons, links }));
-      } else if (transitionDelay !== 0) {
+      const { buttons, links } = params;
+      yield put(setInputs({ buttons, links }));
+      if (transitionDelay !== 0) {
         yield put(showReenter());
-      } else {
+        yield delay(transitionDelay * 1000);
         yield put(hideReenter());
       }
       break;
     }
     case 'register_input_phase_two': {
-      if (_isEmpty(nextStage)) {
-        const { buttons, links } = params;
-        yield put(setInputs({ buttons, links }));
-      } else if (nextStage === 'register_input_phase_one') {
+      const { buttons, links } = params;
+      yield put(setInputs({ buttons, links }));
+      if (nextStage === 'register_input_phase_one') {
         if (transitionDelay !== 0) {
           yield put(showMismatch());
-        } else {
+          yield delay(transitionDelay * 1000);
           yield put(hideMismatch());
         }
       } else if (transitionDelay !== 0) {
-        //yield put()
-      } else {
-        //yield put();
+        yield put(gotoRegistered());
+        yield delay(transitionDelay * 1000);
+        yield put(gotoComplete());
       }
       break;
     }
     case 'complete': {
-      // yield put(DISCONNECT);
       if (!_isEmpty(nextStage)) {
         yield delay(transitionDelay * 1000);
-        if (nextStage === 'home') {
-          yield put(gotoHome());
-        } else {
-          yield put(gotoPassword());
-        }
+        yield put(gotoHome());
       }
       break;
     }
     case 'login_input': {
-      if (_isEmpty(nextStage)) {
-        const { buttons, links } = params;
-        yield put(setInputs({ buttons, links }));
-      } else {
-        // TODO:
-        // If correct, display correct prompt and go to complete
-        // If incorrect, display incorrect prompt with either num of tries left or unlock time
-        //    - clear all buttons and links
-        if (nextStage === 'login_input') {
-          if (transitionDelay !== 0) {
-          }
+      const { buttons, links } = params;
+      yield put(setInputs({ buttons, links }));
+      if (nextStage === 'login_input') {
+        if (transitionDelay !== 0) {
+          yield put(showIncorrect());
+          yield delay(transitionDelay * 1000);
+          yield put(hideIncorrect());
         }
+      } else if (transitionDelay !== 0) {
+        yield put(showCorrect());
+        yield delay(transitionDelay * 1000);
+        yield put(hideCorrect());
+        yield put(gotoComplete());
       }
       break;
     }
