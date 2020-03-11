@@ -97,9 +97,9 @@ class Processor(object):
 
         button = self._get_button(position)
 
-        # if button and button not in self.inputs:
+        if button and button not in self.inputs:
         # TODO: Replace above with next line to enable nonduplication inputs
-        if button:
+        # if button:
             self.inputs.append(button)
             logging.info(f" - {button} - Detected\n" +
                          f"\tCurrent inputs: {self.inputs}")
