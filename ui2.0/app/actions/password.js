@@ -16,10 +16,6 @@ export const hideReenter = () => ({
   payload: false
 });
 
-export const setInputs = payload => ({
-  type: SET_INPUTS,
-  payload
-
 export const showIncorrect = () => ({
   type: SET_INCORRECT,
   payload: true
@@ -48,4 +44,9 @@ export const showMismatch = () => ({
 export const hideMismatch = () => ({
   type: SET_MISMATCH,
   payload: false
+});
+
+export const setInputs = payload => ({
+  type: SET_INPUTS,
+  payload
 });

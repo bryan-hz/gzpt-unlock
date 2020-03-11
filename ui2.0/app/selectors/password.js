@@ -7,6 +7,17 @@ export const selectShowReenter = createSelector(
   substate => substate.showReenter
 );
 
+export const selectShowIncorrect = createSelector(
+  // TODO: the props show be different from incorrect and correct after reentering?
+  selectPasswordDomain,
+  substate => substate.showIncorrect
+);
+export const selectShowCorrect = createSelector(
+  // TODO: the props show be different from incorrect and correct after reentering?
+  selectPasswordDomain,
+  substate => substate.showCorrect
+);
+
 export const selectShowMismatch = createSelector(
   selectPasswordDomain,
   substate => substate.showMismatch
@@ -20,13 +31,4 @@ export const selectActiveButtons = createSelector(
 export const selectActiveLinks = createSelector(
   selectPasswordDomain,
   substate => substate.activeLinks
-export const selectShowIncorrect = createSelector(
-  // TODO: the props show be different from incorrect and correct after reentering?
-  selectPasswordDomain,
-  substate => substate.showIncorrect
-);
-export const selectShowCorrect = createSelector(
-  // TODO: the props show be different from incorrect and correct after reentering?
-  selectPasswordDomain,
-  substate => substate.showCorrect
 );
