@@ -11,6 +11,7 @@ import {
 } from 'redux-saga/effects';
 import { REDIRECT } from 'constants/redirect';
 import _isEmpty from 'lodash/isEmpty';
+import _toInteger from 'lodash/toInteger';
 import { history } from 'store/configureStore';
 import { TRY_CONNECT } from 'constants/preparation';
 import { PROCESSOR_ID, LOCAL_HOST } from 'constants/api';
@@ -37,7 +38,8 @@ import {
   hideCorrect,
   showMismatch,
   hideMismatch,
-  setInputs
+  setInputs,
+  setIncorrectParam
 } from '../actions/password';
 
 const getUrl = ({ host, location }) =>
@@ -108,20 +110,57 @@ function* updateStageSaga({
       break;
     }
     case 'login_input': {
-      const { buttons, links } = params;
+      const { buttons, links, remainingTrials, nextPenaltyTime } = params;
       yield put(setInputs({ buttons, links }));
+
+      const penaltyTime = remainingTrials ? nextPenaltyTime : transitionDelay;
+      yield put(
+        setIncorrectParam({
+          remainingTrials,
+          nextPenaltyTime: _toInteger(penaltyTime)
+        })
+      );
+
       if (nextStage === 'login_input') {
-        if (transitionDelay !== 0) {
-          yield put(showIncorrect());
-          yield delay(transitionDelay * 1000);
-          yield put(hideIncorrect());
-        }
-      } else if (transitionDelay !== 0) {
-        yield put(showCorrect());
-        yield delay(transitionDelay * 1000);
-        yield put(hideCorrect());
-        yield put(gotoComplete());
+        yield put(showIncorrect());
       }
+      if (nextStage === 'complete') {
+        yield put(showCorrect());
+      }
+
+      if (transitionDelay < 1) {
+        delay(transitionDelay * 1000);
+        yield put(hideIncorrect());
+        yield put(hideCorrect());
+      }
+
+      // if (nextStage === 'login_input') {
+      //   const { remainingTrials, nextPenaltyTime } = params;
+      //   const penaltyTime = transitionDelay ? transitionDelay : nextPenaltyTime;
+      //   yield put(
+      //     setIncorrectParam({
+      //       remainingTrials,
+      //       nextPenaltyTime: penaltyTime
+      //     })
+      //   );
+
+      //   yield put(showIncorrect());
+
+      // if (transitionDelay !== 0) {
+      //   const { remainingTrials, nextPenaltyTime } = params;
+      //   yield put(setIncorrectParam({ remainingTrials, nextPenaltyTime }));
+      //   yield put(showIncorrect());
+      //   if (transitionDelay < 1) {
+      //     yield delay(transitionDelay * 1000);
+      //     yield put(hideIncorrect());
+      //   }
+      // }
+      // } else if (transitionDelay !== 0) {
+      //   yield put(showCorrect());
+      //   yield delay(transitionDelay * 1000);
+      //   yield put(hideCorrect());
+      //   yield put(gotoComplete());
+      // }
       break;
     }
     default:

@@ -2,6 +2,7 @@ import {
   SET_REENTER,
   SET_CORRECT,
   SET_INCORRECT,
+  SET_REJECT_PARAM,
   SET_MISMATCH,
   SET_INPUTS
 } from 'constants/password';
@@ -14,6 +15,11 @@ export const showReenter = () => ({
 export const hideReenter = () => ({
   type: SET_REENTER,
   payload: false
+});
+
+export const setIncorrectParam = payload => ({
+  type: SET_REJECT_PARAM,
+  payload
 });
 
 export const showIncorrect = () => ({

@@ -7,13 +7,22 @@ export const selectShowReenter = createSelector(
   substate => substate.showReenter
 );
 
+export const selectNextPenaltyTime = createSelector(
+  selectPasswordDomain,
+  substate => substate.nextPenaltyTime
+);
+
+export const selectRemainingTrials = createSelector(
+  selectPasswordDomain,
+  substate => substate.remainingTrials
+);
+
 export const selectShowIncorrect = createSelector(
-  // TODO: the props show be different from incorrect and correct after reentering?
   selectPasswordDomain,
   substate => substate.showIncorrect
 );
+
 export const selectShowCorrect = createSelector(
-  // TODO: the props show be different from incorrect and correct after reentering?
   selectPasswordDomain,
   substate => substate.showCorrect
 );
