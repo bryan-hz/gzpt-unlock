@@ -1,6 +1,7 @@
 import socket
 import xml.etree.ElementTree as ET
 from collections import defaultdict
+import time
 
 
 class Gazepoint():
@@ -39,12 +40,19 @@ class Gazepoint():
     def calibrate(self):
         self._show_calibration()
         self._start_calibrate()
+        start = time.time()
         while True:
             data = self._recv()
             if data["ID"] == "CALIB_RESULT":
                 self._dismiss_calibration()
                 self._end_calibrate()
                 return True
+            elif time.time() - start > 11:
+                self._dismiss_calibration()
+                self._end_calibrate()
+                return False
+            else:
+                pass
 
     def read(self):
         return self._recv()

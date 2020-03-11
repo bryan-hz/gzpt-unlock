@@ -6,7 +6,7 @@ from typing import Tuple, Union
 
 import numpy as np
 
-MAX_TRIALS = 2
+MAX_TRIALS = 3
 TRANSITION_DELAY = 1
 REENTER_DELAY = 3
 INIT_PENALTY_DELAY = 10
@@ -16,6 +16,7 @@ class Processor(object):
     def __init__(self):
         self.stages = self._load_stages()
         self.users = self._load_users()
+        self.autofills = self._load_autofills()
         self.current_user = self.users["test"]
 
         self.current_stage = self.stages["entry"]
@@ -46,6 +47,10 @@ class Processor(object):
         with open('users.json', 'w') as f:
             f.write(json.dumps(self.users, indent=4))
 
+    def _load_autofills(self) -> dict:
+        with open('autofills.json') as f:
+            return json.load(f)
+
     def _get_next_stage(self, action: str = None):
         if self.stages[self.current_stage]["multi-branching"] and action:
             return self.stages[self.current_stage]["next"][action]
@@ -56,7 +61,9 @@ class Processor(object):
                 'Trying to move to another branch without action')
 
     def _is_done(self):
-        return (self.current_stage == 'complete' or self.next_stage == 'complete')
+        # Always running
+        return False
+        # return (self.current_stage == 'complete' or self.next_stage == 'complete')
 
     def _update_stage(self) -> None:
         if not self.next_stage or (time.time() - self.ts) < self.delay:
@@ -72,11 +79,14 @@ class Processor(object):
         self.configs = self._load_config()
         input_len = self.stages[self.current_stage]["input-length"]
         self.inputs = deque(maxlen=input_len)
+        if not self.remaining_trials:
+            self.remaining_trials = MAX_TRIALS
 
         # Used in password related stages only
         self.connections = deque(maxlen=max(input_len-1, 0))
 
         logging.info(f" Stage is updated to {self.current_stage}")
+        logging.info(f" Current stage config {self.configs}")
 
     def _load_config(self) -> Union[dict, None]:
         config_file = self.stages[self.current_stage]["config-file"]
@@ -97,9 +107,9 @@ class Processor(object):
 
         button = self._get_button(position)
 
-        # if button and button not in self.inputs:
-        # TODO: Replace above with next line to enable nonduplication inputs
-        if button:
+        if button and button not in self.inputs:
+            # TODO: Replace above with next line to enable nonduplication inputs
+            # if button:
             self.inputs.append(button)
             logging.info(f" - {button} - Detected\n" +
                          f"\tCurrent inputs: {self.inputs}")
@@ -131,10 +141,33 @@ class Processor(object):
 
         self._logging_stage_info()
 
+    def _get_latest_two_inputs(self):
+        return ''.join(list(self.inputs)[-2:])
+
+    def _insert_autofill(self):
+        latest_two = self._get_latest_two_inputs()
+        if latest_two in self.autofills:
+            autofill = self.autofills[latest_two]
+
+            logging.info(f" Current input: {self.inputs}\n" +
+                         f" Autofilling - {autofill} - ...")
+            if len(self.inputs) == self.inputs.maxlen:
+                self.inputs.pop()
+                self.inputs.append(autofill)
+            else:
+                latest_one = self.inputs.pop()
+                self.inputs.append(autofill)
+                self.connections.append(self._get_latest_two_inputs())
+                self.inputs.append(latest_one)
+
+            logging.info(" Autofill complete\n" +
+                         f" Current inputs: {self.inputs}")
+
     def _handle_custom_rules(self) -> None:
         if self.current_stage == 'register_input_phase_one':
             if len(self.inputs) > 1:
-                self.connections.append(''.join(list(self.inputs)[-2:]))
+                self._insert_autofill()
+                self.connections.append(self._get_latest_two_inputs())
             if len(self.inputs) == self.inputs.maxlen:
                 self.current_user["password"] = ''.join(self.inputs)
                 self.next_stage = self._get_next_stage()
@@ -144,7 +177,8 @@ class Processor(object):
                 self._logging_stage_info()
         elif self.current_stage == 'register_input_phase_two':
             if len(self.inputs) > 1:
-                self.connections.append(''.join(list(self.inputs)[-2:]))
+                self._insert_autofill()
+                self.connections.append(self._get_latest_two_inputs())
             if len(self.inputs) == self.inputs.maxlen:
                 match = self.current_user["password"] == ''.join(self.inputs)
                 if match:
@@ -155,17 +189,17 @@ class Processor(object):
                 self._logging_stage_info()
         elif self.current_stage == 'login_input':
             if len(self.inputs) > 1:
-                self.connections.append(''.join(list(self.inputs)[-2:]))
+                self._insert_autofill()
+                self.connections.append(self._get_latest_two_inputs())
             if len(self.inputs) == self.inputs.maxlen:
                 match = self.current_user["password"] == ''.join(self.inputs)
                 if not match:
+                    self.remaining_trials -= 1
                     if not self.remaining_trials:
                         self.delay = self.penalty_delay
                         self.penalty_delay *= 2
-                        self.remaining_trials = MAX_TRIALS
                     else:
                         self.delay = REENTER_DELAY
-                        self.remaining_trials -= 1
                 else:
                     self.delay = TRANSITION_DELAY
                 self.next_stage = self._get_next_stage(str(match))

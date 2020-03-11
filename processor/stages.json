@@ -62,8 +62,8 @@
     },
     "complete": {
         "multi-branching": false,
-        "config-file": null,
-        "input-length": 0,
-        "next": null
+        "config-file": "complete.json",
+        "input-length": 1,
+        "next": "home"
     }
 }

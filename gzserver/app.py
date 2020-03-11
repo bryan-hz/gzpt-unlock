@@ -48,10 +48,13 @@ class App():
         # Do calibration
         logging.info(" Calibration Starts")
         try:
-            self.gazepoint.calibrate()
-        except:
-            logging.error(" Exception during calibration\nExit")
-        logging.info(" Calibration Ends")
+            if self.gazepoint.calibrate():
+                logging.info(" Calibration Ends")
+            else:
+                logging.warning(" Manually close calibration")
+        except Exception as e:
+            logging.error(" Exception during calibration\n")
+            raise(e)
 
     def main_loop(self):
         # Keep reading data from gaze machine
@@ -71,9 +74,10 @@ class App():
 
             valid_center = self._get_valid_center(historical_data)
             if valid_center is not None:
+                logging.info(f" Center: {valid_center}")
                 res = requests.post("http://127.0.0.1:5050/input",
-                                    json={"data": valid_center})
-                data = json.load(res.content)
+                                    json={"data": list(valid_center)})
+                data = json.loads(res.content)
                 if data['complete']:
                     return
                 if data['clear']:

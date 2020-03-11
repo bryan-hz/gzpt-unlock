@@ -27,7 +27,7 @@ def calibrationAPI():
     global processor
     processor = Processor()
     # TODO: Remove next line to start gaze server
-    return ('', http.HTTPStatus.OK)
+    # return ('', http.HTTPStatus.OK)
     try:
         data = requests.get("http://127.0.0.1:5432")
     except:
@@ -82,4 +82,4 @@ def current_stageAPI():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5050, host=('0.0.0.0'))
+    app.run(debug=False, port=5050, host=('0.0.0.0'))
