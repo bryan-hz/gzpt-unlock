@@ -1,4 +1,10 @@
-import { SET_REENTER, SET_INPUTS } from 'constants/password';
+import {
+  SET_REENTER,
+  SET_CORRECT,
+  SET_INCORRECT,
+  SET_MISMATCH,
+  SET_INPUTS
+} from 'constants/password';
 
 export const showReenter = () => ({
   type: SET_REENTER,
@@ -7,6 +13,36 @@ export const showReenter = () => ({
 
 export const hideReenter = () => ({
   type: SET_REENTER,
+  payload: false
+});
+
+export const showIncorrect = () => ({
+  type: SET_INCORRECT,
+  payload: true
+});
+
+export const hideIncorrect = () => ({
+  type: SET_INCORRECT,
+  payload: false
+});
+
+export const showCorrect = () => ({
+  type: SET_CORRECT,
+  payload: true
+});
+
+export const hideCorrect = () => ({
+  type: SET_CORRECT,
+  payload: false
+});
+
+export const showMismatch = () => ({
+  type: SET_MISMATCH,
+  payload: true
+});
+
+export const hideMismatch = () => ({
+  type: SET_MISMATCH,
   payload: false
 });
 

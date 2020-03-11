@@ -20,8 +20,25 @@ import {
   saveInput,
   setCalibrationCountdown
 } from 'actions/preparation';
-import { gotoHome, gotoRegisterInstruction } from 'actions/redirect';
-import { setInputs } from '../actions/password';
+import {
+  gotoHome,
+  gotoRegisterInstruction,
+  gotoLoginInstruction,
+  gotoPassword,
+  gotoRegistered,
+  gotoComplete
+} from 'actions/redirect';
+import {
+  showReenter,
+  hideReenter,
+  showIncorrect,
+  hideIncorrect,
+  showCorrect,
+  hideCorrect,
+  showMismatch,
+  hideMismatch,
+  setInputs
+} from '../actions/password';
 
 const getUrl = ({ host, location }) =>
   `http://${host || LOCAL_HOST}:5050${location || ''}`;
@@ -38,21 +55,73 @@ function* updateStageSaga({
     case 'home':
       if (!_isEmpty(nextStage)) {
         yield delay(transitionDelay * 1000);
-        yield put(gotoRegisterInstruction());
+        if (nextStage === 'register_instruction') {
+          yield put(gotoRegisterInstruction());
+        } else {
+          yield put(gotoLoginInstruction());
+        }
       }
       break;
-    // TODO: Add more cases
+    case 'register_instruction':
+    case 'login_instruction': {
+      if (!_isEmpty(nextStage)) {
+        yield delay(transitionDelay * 1000);
+        if (nextStage === 'home') {
+          yield put(gotoHome());
+        } else {
+          yield put(gotoPassword());
+        }
+      }
+      break;
+    }
     case 'register_input_phase_one': {
-      if (_isEmpty(nextStage)) {
-        const { buttons, links } = params;
-        yield put(setInputs({ buttons, links }));
-      } else {
-        // TODO
+      const { buttons, links } = params;
+      yield put(setInputs({ buttons, links }));
+      if (transitionDelay !== 0) {
+        yield put(showReenter());
+        yield delay(transitionDelay * 1000);
+        yield put(hideReenter());
+      }
+      break;
+    }
+    case 'register_input_phase_two': {
+      const { buttons, links } = params;
+      yield put(setInputs({ buttons, links }));
+      if (nextStage === 'register_input_phase_one') {
+        if (transitionDelay !== 0) {
+          yield put(showMismatch());
+          yield delay(transitionDelay * 1000);
+          yield put(hideMismatch());
+        }
+      } else if (transitionDelay !== 0) {
+        yield put(gotoRegistered());
+        yield delay(transitionDelay * 1000);
+        yield put(gotoComplete());
       }
       break;
     }
     case 'complete': {
-      yield put(DISCONNECT);
+      if (!_isEmpty(nextStage)) {
+        yield delay(transitionDelay * 1000);
+        yield put(gotoHome());
+      }
+      break;
+    }
+    case 'login_input': {
+      const { buttons, links } = params;
+      yield put(setInputs({ buttons, links }));
+      if (nextStage === 'login_input') {
+        if (transitionDelay !== 0) {
+          yield put(showIncorrect());
+          yield delay(transitionDelay * 1000);
+          yield put(hideIncorrect());
+        }
+      } else if (transitionDelay !== 0) {
+        yield put(showCorrect());
+        yield delay(transitionDelay * 1000);
+        yield put(hideCorrect());
+        yield put(gotoComplete());
+      }
       break;
     }
     default:
