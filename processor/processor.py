@@ -7,7 +7,7 @@ from typing import Tuple, Union
 import numpy as np
 
 MAX_TRIALS = 3
-TRANSITION_DELAY = 1
+TRANSITION_DELAY = 2
 REENTER_DELAY = 3
 INIT_PENALTY_DELAY = 10
 
