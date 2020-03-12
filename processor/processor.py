@@ -83,7 +83,7 @@ class Processor(object):
             self.remaining_trials = MAX_TRIALS
 
         # Used in password related stages only
-        self.connections = deque(maxlen=max(input_len-1, 0))
+        self.connections = deque()
 
         logging.info(f" Stage is updated to {self.current_stage}")
         logging.info(f" Current stage config {self.configs}")
@@ -149,25 +149,37 @@ class Processor(object):
         if latest_two in self.autofills:
             autofill = self.autofills[latest_two]
 
+            if autofill in self.inputs:
+                conn1 = ''.join([autofill, self.inputs[-2], autofill])
+                conn2 = ''.join([autofill, self.inputs[-1], autofill])
+                if (conn1[:2] not in self.connections and conn1[1:] not in self.connections):
+                    self.connections.append(conn1[:2])
+                if (conn2[:2] not in self.connections and conn2[1:] not in self.connections):
+                    self.connections.append(conn2[:2])
+                return
+
             logging.info(f" Current input: {self.inputs}\n" +
                          f" Autofilling - {autofill} - ...")
             if len(self.inputs) == self.inputs.maxlen:
                 self.inputs.pop()
                 self.inputs.append(autofill)
+                self.connections.append(self._get_latest_two_inputs())
             else:
                 latest_one = self.inputs.pop()
                 self.inputs.append(autofill)
                 self.connections.append(self._get_latest_two_inputs())
                 self.inputs.append(latest_one)
+                self.connections.append(self._get_latest_two_inputs())
 
             logging.info(" Autofill complete\n" +
                          f" Current inputs: {self.inputs}")
+        else:
+            self.connections.append(self._get_latest_two_inputs())
 
     def _handle_custom_rules(self) -> None:
         if self.current_stage == 'register_input_phase_one':
             if len(self.inputs) > 1:
                 self._insert_autofill()
-                self.connections.append(self._get_latest_two_inputs())
             if len(self.inputs) == self.inputs.maxlen:
                 self.current_user["password"] = ''.join(self.inputs)
                 self.next_stage = self._get_next_stage()
@@ -178,7 +190,6 @@ class Processor(object):
         elif self.current_stage == 'register_input_phase_two':
             if len(self.inputs) > 1:
                 self._insert_autofill()
-                self.connections.append(self._get_latest_two_inputs())
             if len(self.inputs) == self.inputs.maxlen:
                 match = self.current_user["password"] == ''.join(self.inputs)
                 if match:
@@ -190,7 +201,6 @@ class Processor(object):
         elif self.current_stage == 'login_input':
             if len(self.inputs) > 1:
                 self._insert_autofill()
-                self.connections.append(self._get_latest_two_inputs())
             if len(self.inputs) == self.inputs.maxlen:
                 match = self.current_user["password"] == ''.join(self.inputs)
                 if not match:
