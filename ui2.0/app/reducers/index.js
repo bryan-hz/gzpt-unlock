@@ -5,6 +5,7 @@ import preparation from './preparation';
 import home from './home';
 import password from './password';
 import instruction from './instruction';
+import complete from './complete';
 
 export default function createRootReducer(history) {
   return combineReducers({
@@ -13,6 +14,7 @@ export default function createRootReducer(history) {
     preparation,
     password,
     instruction,
-    home
+    home,
+    complete
   });
 }

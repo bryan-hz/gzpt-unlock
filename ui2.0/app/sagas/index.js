@@ -47,6 +47,10 @@ import {
   activateReadyButton,
   deactivateReadyButton
 } from '../actions/instruction';
+import {
+  activateLogoutButton,
+  deactivateLogoutButton
+} from '../actions/complete';
 import { setLoadingLogin, setLoadingReset } from '../actions/home';
 
 const getUrl = ({ host, location }) =>
@@ -121,7 +125,9 @@ function* updateStageSaga({
     }
     case 'complete': {
       if (!_isEmpty(nextStage)) {
+        yield put(activateLogoutButton());
         yield delay(transitionDelay * 1000);
+        yield put(deactivateLogoutButton());
         yield put(gotoHome());
       }
       break;

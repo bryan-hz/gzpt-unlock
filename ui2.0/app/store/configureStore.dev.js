@@ -9,6 +9,7 @@ import * as counterActions from '../actions/counter';
 import * as redirectActions from '../actions/redirect';
 import * as passwordActions from '../actions/password';
 import * as instrActions from '../actions/instruction';
+import * as completeActions from '../actions/complete';
 
 const history = createHashHistory();
 
@@ -47,7 +48,8 @@ const configureStore = initialState => {
     ...redirectActions,
     ...routerActions,
     ...passwordActions,
-    ...instrActions
+    ...instrActions,
+    ...completeActions
   };
   // If Redux DevTools Extension is installed use it, otherwise use Redux compose
   /* eslint-disable no-underscore-dangle */
