@@ -4,7 +4,8 @@ import {
   SET_REJECT_PARAM,
   SET_CORRECT,
   SET_INPUTS,
-  SET_MISMATCH
+  SET_MISMATCH,
+  RESET_PASSWORD_STATES
 } from 'constants/password';
 
 const initialState = {
@@ -52,6 +53,8 @@ export default (state = initialState, { type, payload }) => {
         ...state,
         showMismatch: payload
       };
+    case RESET_PASSWORD_STATES:
+      return initialState;
     default:
       return state;
   }

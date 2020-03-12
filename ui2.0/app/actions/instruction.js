@@ -1,4 +1,8 @@
-import { SET_GO_BACK_BUTTON, SET_READY_BUTTON } from 'constants/instruction';
+import {
+  SET_GO_BACK_BUTTON,
+  SET_READY_BUTTON,
+  RESET_INSTRUCTION_STATES
+} from 'constants/instruction';
 
 export const activateGoBackButton = () => ({
   type: SET_GO_BACK_BUTTON,
@@ -18,4 +22,8 @@ export const activateReadyButton = () => ({
 export const deactivateReadyButton = () => ({
   type: SET_READY_BUTTON,
   payload: false
+});
+
+export const resetInstructionStates = () => ({
+  type: RESET_INSTRUCTION_STATES
 });

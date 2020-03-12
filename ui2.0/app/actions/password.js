@@ -4,7 +4,8 @@ import {
   SET_INCORRECT,
   SET_REJECT_PARAM,
   SET_MISMATCH,
-  SET_INPUTS
+  SET_INPUTS,
+  RESET_PASSWORD_STATES
 } from 'constants/password';
 
 export const showReenter = () => ({
@@ -55,4 +56,8 @@ export const hideMismatch = () => ({
 export const setInputs = payload => ({
   type: SET_INPUTS,
   payload
+});
+
+export const resetPasswordStates = () => ({
+  type: RESET_PASSWORD_STATES
 });

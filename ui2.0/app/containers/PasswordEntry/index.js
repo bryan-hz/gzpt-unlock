@@ -14,6 +14,7 @@ import {
   selectRemainingTrials,
   selectActiveLinks
 } from 'selectors/password';
+import { resetPasswordStates } from '../../actions/password';
 
 class PasswordEntry extends React.PureComponent {
   static propTypes = {
@@ -24,8 +25,15 @@ class PasswordEntry extends React.PureComponent {
     activeButtons: PropTypes.arrayOf(PropTypes.string).isRequired,
     activeLinks: PropTypes.arrayOf(PropTypes.string).isRequired,
     nextPenaltyTime: PropTypes.number.isRequired,
-    remainingTrials: PropTypes.number.isRequired
+    remainingTrials: PropTypes.number.isRequired,
+
+    resetStates: PropTypes.func.isRequired
   };
+
+  componentWillUnmount() {
+    const { resetStates } = this.props;
+    resetStates();
+  }
 
   render() {
     const {
@@ -65,4 +73,8 @@ const mapStateToProps = state => ({
   remainingTrials: selectRemainingTrials(state)
 });
 
-export default connect(mapStateToProps)(PasswordEntry);
+const mapDispatchToProps = dispatch => ({
+  resetStates: () => dispatch(resetPasswordStates())
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(PasswordEntry);

@@ -2,9 +2,8 @@ import { createSelector } from 'reselect';
 
 const selectCompleteDomain = state => state.complete;
 
-const selectActivateLogoutButton = createSelector(
+// eslint-disable-next-line import/prefer-default-export
+export const selectActivateLogoutButton = createSelector(
   selectCompleteDomain,
   substate => substate.activateLogoutButton
 );
-
-export default selectActivateLogoutButton;
