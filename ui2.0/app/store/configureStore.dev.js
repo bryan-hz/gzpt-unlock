@@ -8,7 +8,7 @@ import createRootReducer from '../reducers';
 import * as counterActions from '../actions/counter';
 import * as redirectActions from '../actions/redirect';
 import * as passwordActions from '../actions/password';
-import * as loginInstrActions from '../actions/loginInstruction';
+import * as instrActions from '../actions/instruction';
 
 const history = createHashHistory();
 
@@ -47,7 +47,7 @@ const configureStore = initialState => {
     ...redirectActions,
     ...routerActions,
     ...passwordActions,
-    ...loginInstrActions
+    ...instrActions
   };
   // If Redux DevTools Extension is installed use it, otherwise use Redux compose
   /* eslint-disable no-underscore-dangle */

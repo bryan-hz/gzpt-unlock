@@ -41,6 +41,12 @@ import {
   setInputs,
   setIncorrectParam
 } from '../actions/password';
+import {
+  activateGoBackButton,
+  deactivateGoBackButton,
+  activateReadyButton,
+  deactivateReadyButton
+} from '../actions/instruction';
 import { setLoadingLogin, setLoadingReset } from '../actions/home';
 
 const getUrl = ({ host, location }) =>
@@ -73,10 +79,15 @@ function* updateStageSaga({
     case 'register_instruction':
     case 'login_instruction': {
       if (!_isEmpty(nextStage)) {
-        yield delay(transitionDelay * 1000);
         if (nextStage === 'home') {
+          yield put(activateGoBackButton());
+          yield delay(transitionDelay * 1000);
+          yield put(deactivateGoBackButton());
           yield put(gotoHome());
         } else {
+          yield put(activateReadyButton());
+          yield delay(transitionDelay * 1000);
+          yield put(deactivateReadyButton());
           yield put(gotoPassword());
         }
       }
@@ -130,43 +141,18 @@ function* updateStageSaga({
       if (nextStage === 'login_input') {
         yield put(showIncorrect());
       }
-      if (nextStage === 'complete') {
-        yield put(showCorrect());
-      }
 
       if (transitionDelay < 1) {
-        delay(transitionDelay * 1000);
+        yield delay(transitionDelay * 1000);
         yield put(hideIncorrect());
-        yield put(hideCorrect());
       }
 
-      // if (nextStage === 'login_input') {
-      //   const { remainingTrials, nextPenaltyTime } = params;
-      //   const penaltyTime = transitionDelay ? transitionDelay : nextPenaltyTime;
-      //   yield put(
-      //     setIncorrectParam({
-      //       remainingTrials,
-      //       nextPenaltyTime: penaltyTime
-      //     })
-      //   );
-
-      //   yield put(showIncorrect());
-
-      // if (transitionDelay !== 0) {
-      //   const { remainingTrials, nextPenaltyTime } = params;
-      //   yield put(setIncorrectParam({ remainingTrials, nextPenaltyTime }));
-      //   yield put(showIncorrect());
-      //   if (transitionDelay < 1) {
-      //     yield delay(transitionDelay * 1000);
-      //     yield put(hideIncorrect());
-      //   }
-      // }
-      // } else if (transitionDelay !== 0) {
-      //   yield put(showCorrect());
-      //   yield delay(transitionDelay * 1000);
-      //   yield put(hideCorrect());
-      //   yield put(gotoComplete());
-      // }
+      if (nextStage === 'complete') {
+        yield put(showCorrect());
+        yield delay(transitionDelay * 1000);
+        yield put(hideCorrect());
+        yield put(gotoComplete());
+      }
       break;
     }
     default:

@@ -6,7 +6,7 @@ import LoginInstructionPage from 'components/LoginInstructionPage';
 import {
   selectActivateReadyButton,
   selectActivateGoBackButton
-} from 'selectors/loginInstruction';
+} from 'selectors/instruction';
 
 class InputInstruction extends React.PureComponent {
   static propTypes = {

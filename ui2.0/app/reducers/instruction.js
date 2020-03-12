@@ -1,7 +1,4 @@
-import {
-  SET_GO_BACK_BUTTON,
-  SET_READY_BUTTON
-} from 'constants/loginInstruction';
+import { SET_GO_BACK_BUTTON, SET_READY_BUTTON } from 'constants/instruction';
 
 const initialState = {
   activateGoBackButton: false,
