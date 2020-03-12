@@ -4,7 +4,8 @@ import counter from './counter';
 import preparation from './preparation';
 import home from './home';
 import password from './password';
-import loginInstruction from './loginInstruction';
+import instruction from './instruction';
+import complete from './complete';
 
 export default function createRootReducer(history) {
   return combineReducers({
@@ -12,7 +13,8 @@ export default function createRootReducer(history) {
     counter,
     preparation,
     password,
-    loginInstruction,
-    home
+    instruction,
+    home,
+    complete
   });
 }

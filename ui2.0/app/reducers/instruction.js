@@ -1,7 +1,8 @@
 import {
   SET_GO_BACK_BUTTON,
-  SET_READY_BUTTON
-} from 'constants/loginInstruction';
+  SET_READY_BUTTON,
+  RESET_INSTRUCTION_STATES
+} from 'constants/instruction';
 
 const initialState = {
   activateGoBackButton: false,
@@ -20,6 +21,8 @@ export default (state = initialState, { type, payload }) => {
         ...state,
         activateReadyButton: payload
       };
+    case RESET_INSTRUCTION_STATES:
+      return initialState;
     default:
       return state;
   }

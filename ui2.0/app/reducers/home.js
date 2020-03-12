@@ -1,4 +1,8 @@
-import { SET_LOADING_LOGIN, SET_LOADING_RESET } from 'constants/home';
+import {
+  SET_LOADING_LOGIN,
+  SET_LOADING_RESET,
+  RESET_HOME_STATES
+} from 'constants/home';
 
 const initialState = {
   loadingReset: false,
@@ -17,6 +21,8 @@ export default (state = initialState, { type, payload }) => {
         ...state,
         loadingLogin: payload
       };
+    case RESET_HOME_STATES:
+      return initialState;
     default:
       return state;
   }

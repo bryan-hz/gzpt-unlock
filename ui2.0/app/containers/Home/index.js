@@ -10,6 +10,7 @@ import { faCircleNotch } from '@fortawesome/free-solid-svg-icons';
 
 import LoginButton from 'images/log_in_button.svg';
 import { selectLoadingLogin, selectLoadingReset } from 'selectors/home';
+import { resetHomeStates } from 'actions/home';
 
 library.add(faCircleNotch);
 
@@ -45,8 +46,15 @@ const StyledLoginButton = styled.img`
 class Home extends React.PureComponent {
   static propTypes = {
     loadingLogin: PropTypes.bool.isRequired,
-    loadingReset: PropTypes.bool.isRequired
+    loadingReset: PropTypes.bool.isRequired,
+
+    resetStates: PropTypes.func.isRequired
   };
+
+  componentWillUnmount() {
+    const { resetStates } = this.props;
+    resetStates();
+  }
 
   render() {
     const { loadingLogin, loadingReset } = this.props;
@@ -69,4 +77,8 @@ const mapStateToProps = state => ({
   loadingReset: selectLoadingReset(state)
 });
 
-export default connect(mapStateToProps)(Home);
+const mapDispatchToProps = dispatch => ({
+  resetStates: () => dispatch(resetHomeStates())
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home);

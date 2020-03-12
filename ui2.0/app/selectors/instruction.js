@@ -1,13 +1,13 @@
 import { createSelector } from 'reselect';
 
-const selectLoginInstrDomain = state => state.loginInstruction;
+const selectInstrDomain = state => state.instruction;
 
 export const selectActivateGoBackButton = createSelector(
-  selectLoginInstrDomain,
+  selectInstrDomain,
   substate => substate.activateGoBackButton
 );
 
 export const selectActivateReadyButton = createSelector(
-  selectLoginInstrDomain,
+  selectInstrDomain,
   substate => substate.activateReadyButton
 );

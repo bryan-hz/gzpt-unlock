@@ -1,6 +1,4 @@
 import {
-  // eslint-disable-next-line no-unused-vars
-  select,
   put,
   race,
   all,
@@ -35,13 +33,14 @@ import {
   showIncorrect,
   hideIncorrect,
   showCorrect,
-  hideCorrect,
   showMismatch,
   hideMismatch,
   setInputs,
   setIncorrectParam
-} from '../actions/password';
-import { setLoadingLogin, setLoadingReset } from '../actions/home';
+} from 'actions/password';
+import { activateGoBackButton, activateReadyButton } from 'actions/instruction';
+import { activateLogoutButton } from 'actions/complete';
+import { setLoadingLogin, setLoadingReset } from 'actions/home';
 
 const getUrl = ({ host, location }) =>
   `http://${host || LOCAL_HOST}:5050${location || ''}`;
@@ -61,22 +60,23 @@ function* updateStageSaga({
           yield put(setLoadingReset(true));
           yield delay(transitionDelay * 1000);
           yield put(gotoRegisterInstruction());
-          yield put(setLoadingReset(false));
         } else {
           yield put(setLoadingLogin(true));
           yield delay(transitionDelay * 1000);
           yield put(gotoLoginInstruction());
-          yield put(setLoadingLogin(false));
         }
       }
       break;
     case 'register_instruction':
     case 'login_instruction': {
       if (!_isEmpty(nextStage)) {
-        yield delay(transitionDelay * 1000);
         if (nextStage === 'home') {
+          yield put(activateGoBackButton());
+          yield delay(transitionDelay * 1000);
           yield put(gotoHome());
         } else {
+          yield put(activateReadyButton());
+          yield delay(transitionDelay * 1000);
           yield put(gotoPassword());
         }
       }
@@ -110,6 +110,7 @@ function* updateStageSaga({
     }
     case 'complete': {
       if (!_isEmpty(nextStage)) {
+        yield put(activateLogoutButton());
         yield delay(transitionDelay * 1000);
         yield put(gotoHome());
       }
@@ -128,45 +129,19 @@ function* updateStageSaga({
       );
 
       if (nextStage === 'login_input') {
-        yield put(showIncorrect());
+        if (transitionDelay > 1) {
+          yield put(showIncorrect());
+        } else {
+          yield delay(transitionDelay * 1000);
+          yield put(hideIncorrect());
+        }
       }
+
       if (nextStage === 'complete') {
         yield put(showCorrect());
+        yield delay(transitionDelay * 1000);
+        yield put(gotoComplete());
       }
-
-      if (transitionDelay < 1) {
-        delay(transitionDelay * 1000);
-        yield put(hideIncorrect());
-        yield put(hideCorrect());
-      }
-
-      // if (nextStage === 'login_input') {
-      //   const { remainingTrials, nextPenaltyTime } = params;
-      //   const penaltyTime = transitionDelay ? transitionDelay : nextPenaltyTime;
-      //   yield put(
-      //     setIncorrectParam({
-      //       remainingTrials,
-      //       nextPenaltyTime: penaltyTime
-      //     })
-      //   );
-
-      //   yield put(showIncorrect());
-
-      // if (transitionDelay !== 0) {
-      //   const { remainingTrials, nextPenaltyTime } = params;
-      //   yield put(setIncorrectParam({ remainingTrials, nextPenaltyTime }));
-      //   yield put(showIncorrect());
-      //   if (transitionDelay < 1) {
-      //     yield delay(transitionDelay * 1000);
-      //     yield put(hideIncorrect());
-      //   }
-      // }
-      // } else if (transitionDelay !== 0) {
-      //   yield put(showCorrect());
-      //   yield delay(transitionDelay * 1000);
-      //   yield put(hideCorrect());
-      //   yield put(gotoComplete());
-      // }
       break;
     }
     default:
@@ -184,7 +159,7 @@ function* checkStageLoop({ host }) {
 
     yield call(updateStageSaga, data);
 
-    yield delay(300);
+    yield delay(100);
   }
 }
 
