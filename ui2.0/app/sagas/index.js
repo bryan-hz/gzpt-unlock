@@ -102,9 +102,9 @@ function* updateStageSaga({
           yield put(hideMismatch());
         }
       } else if (transitionDelay !== 0) {
-        yield delay(transitionDelay * 600);
-        yield put(gotoRegistered());
         yield delay(transitionDelay * 400);
+        yield put(gotoRegistered());
+        yield delay(transitionDelay * 600);
         yield put(gotoComplete());
       }
       break;
