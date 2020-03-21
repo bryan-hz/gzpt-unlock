@@ -102,8 +102,9 @@ function* updateStageSaga({
           yield put(hideMismatch());
         }
       } else if (transitionDelay !== 0) {
+        yield delay(transitionDelay * 400);
         yield put(gotoRegistered());
-        yield delay(transitionDelay * 1000);
+        yield delay(transitionDelay * 600);
         yield put(gotoComplete());
       }
       break;
@@ -157,7 +158,11 @@ function* checkStageLoop({ host }) {
     }).then(response => response.json());
     console.log(data);
 
-    yield call(updateStageSaga, data);
+    try {
+      yield call(updateStageSaga, data);
+    } catch (exception) {
+      console.error('Update Stage fail');
+    }
 
     yield delay(100);
   }
